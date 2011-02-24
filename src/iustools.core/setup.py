@@ -2,8 +2,8 @@
 from setuptools import setup, find_packages
 import sys, os
 
-setup(name='iustools',
-    version='0.1',
+setup(name='iustools.core',
+    version='0.1.1',
     description='Scripts and Utilities for The IUS Community Project',
     classifiers=[], 
     keywords='',
@@ -27,7 +27,7 @@ setup(name='iustools',
     test_suite='nose.collector',
     entry_points="""
     [console_scripts]
-    iustools = iustools.core.appmain:main
+    ius = iustools.core.appmain:main
     """,
     namespace_packages=[
         'iustools', 

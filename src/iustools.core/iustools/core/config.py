@@ -18,7 +18,7 @@ prefix = os.path.join(os.environ['HOME'], '.iustools')
 
 dcf = ConfigObj() # default config
 dcf['config_source'] = ['defaults']
-dcf['app_name'] = 'iustools' # name for cli like /etc/<app_name>
+dcf['app_name'] = 'ius-tools' # name for cli like /etc/<app_name>
 dcf['app_egg_name'] = 'iustools' # name from setup.py
 dcf['app_module'] = 'iustools' # name of the library dir
 
@@ -52,7 +52,7 @@ def get_nose_config(prefix=None):
         prefix = mkdtemp()
         
     tcf = ConfigObj() # test config
-    tcf['config_files'] = [os.path.abspath('./config/iustools.conf-test')]
+    tcf['config_files'] = [os.path.abspath('./config/ius-tools.conf-test')]
     tcf['config_source'] = ['defaults']
     tcf['app_name'] = 'iustools'
     tcf['app_egg_name'] = 'iustools'

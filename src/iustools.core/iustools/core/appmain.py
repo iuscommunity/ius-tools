@@ -18,7 +18,7 @@ from iustools.core.config import default_config
 from iustools.core.exc import IustoolsArgumentError, IustoolsConfigError
 from iustools.core.exc import IustoolsRuntimeError
 
-VERSION = get_distribution('iustools').version
+VERSION = get_distribution('iustools.core').version
 BANNER = """
 iustools version %s
 """ % VERSION

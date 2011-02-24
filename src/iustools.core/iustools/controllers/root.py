@@ -63,31 +63,3 @@ class RootController(CementController):
         """
         raise IustoolsArgumentError, "A command is required. See --help?"
     
-    @expose('iustools.templates.root.cmd1')
-    def cmd1(self):
-        """This is an example 'root' command."""
-        foo = 'bar'
-        items = ['one', 'two', 'three']
-        return dict(foo=foo, items=items)
-    
-    @expose()
-    def cmd1_help(self):
-        """This is an example 'root' -help command.  It should be replaced."""
-        foo = 'In iustools.controllers.root.cmd1_help()'
-        return dict(foo=foo)
-    
-    @expose('iustools.templates.root.get-started')
-    def get_started(self):
-        features = [
-            'Multiple Configuration file parsing (default: /etc, ~/)',
-            'Command line argument and option parsing',
-            'Dual Console/File Logging Support',
-            'Full Internal and External (3rd Party) Plugin support',
-            'Basic "hook" support',
-            'Full MVC support for advanced application design',
-            'Text output rendering with Genshi templates',
-            'Json output rendering allows other programs to access your CLI-API',
-            ]
-        
-        genshi_link = "http://genshi.edgewall.org/wiki/Documentation/text-templates.html"
-        return dict(config=config, features=features, genshi_link=genshi_link)
