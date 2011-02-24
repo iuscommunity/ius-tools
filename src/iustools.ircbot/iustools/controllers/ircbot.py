@@ -13,7 +13,7 @@ config = get_config()
 
 class IRCBotController(CementController):
     @expose(namespace='ircbot')
-    def run(self):
+    def default(self):
         irc = IRC(server=config['ircbot']['server'],
                   port=config['ircbot']['port'],
                   channel=config['ircbot']['channel'],
