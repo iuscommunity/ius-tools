@@ -17,7 +17,7 @@ from cement.core.namespace import get_config
 from cement.core.testing import simulate
 from cement.core.exc import CementRuntimeError
 
-from iustools.core.exc import IustoolsArgumentError
+from iustools.core.exc import IUSToolsArgumentError
 
 config = get_config()
     
@@ -42,7 +42,7 @@ def test_example_cmd_output():
     # You can test values in the result dictionary directly
     ok_(res_dict['foo'])
     
-@raises(IustoolsArgumentError)
+@raises(IUSToolsArgumentError)
 @with_setup(setup_func, teardown_func)
 def test_default_cmd():
     # The default action is to raise an application error if an unknown 

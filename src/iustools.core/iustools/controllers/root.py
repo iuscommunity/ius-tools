@@ -10,7 +10,7 @@ from cement.core.controller import CementController, expose
 from cement.core.namespace import get_config
 from cement.core.log import get_logger
 
-from iustools.core.exc import IustoolsArgumentError
+from iustools.core.exc import IUSToolsArgumentError
 
 log = get_logger(__name__)
 config = get_config()
@@ -61,5 +61,5 @@ class RootController(CementController):
         exception.
         
         """
-        raise IustoolsArgumentError, "A command is required. See --help?"
+        raise IUSToolsArgumentError, "A command is required. See --help?"
     

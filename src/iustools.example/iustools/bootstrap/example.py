@@ -13,7 +13,7 @@ VERSION = get_distribution('iustools.example').version
 # Setup the 'example' namespace object
 example = CementNamespace(
     label='example', 
-    description='Example Plugin for Iustools',
+    description='Example Plugin for IUS Community Project Tools',
     version=VERSION,
     controller='ExampleController',
     provider='iustools'

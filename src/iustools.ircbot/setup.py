@@ -5,7 +5,7 @@ import sys, os
 # You probably want to change the name, this is a healthy default for paster
 setup(name='iustools.ircbot',
     version='0.1.1',
-    description='Ircbot plugin for Iustools',
+    description='IRC Bot Plugin for IUS Community Project Tools',
     classifiers=[], 
     keywords='',
     author='IUS CoreDev Team',

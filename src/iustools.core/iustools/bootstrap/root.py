@@ -25,6 +25,12 @@ def options_hook(*args, **kwargs):
         help='server fqdn/ip to connect to')
     root_options.add_option('-p', '--port', action='store', dest='port',
         help='the server port to connect on')
+    root_options.add_option('--pid-file', action='store', dest='pid_file',
+        help='path to pid file')
+    root_options.add_option('--run-as', action='store', dest='process_user',
+        help='user to run as (where applicable)')
+    root_options.add_option('--daemonize', action='store_true',
+        dest='daemonize', default=None, help="daemonize the process")   
     return ('root', root_options)
 
 # Import all additional (non-plugin) bootstrap libraries here    

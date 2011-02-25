@@ -60,8 +60,8 @@ class IRC(object):
                 if msg.startswith(self.nick):
                     msg = re.sub(self.nick, '', msg).strip()
                 
-                # its a command
-                if msg.startswith('.'):
+                # its a command, 
+                if msg.startswith('.') and not msg.startswith('..'):
                     res = (from_nick, channel, msg)
                 
         return res

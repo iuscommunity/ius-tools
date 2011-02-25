@@ -15,8 +15,8 @@ from cement.core.app_setup import lay_cement
 from cement.core.command import run_command
 
 from iustools.core.config import default_config
-from iustools.core.exc import IustoolsArgumentError, IustoolsConfigError
-from iustools.core.exc import IustoolsRuntimeError
+from iustools.core.exc import IUSToolsArgumentError, IUSToolsConfigError
+from iustools.core.exc import IUSToolsRuntimeError
 
 VERSION = get_distribution('iustools.core').version
 BANNER = """
@@ -41,22 +41,22 @@ def main(args=None):
             
     except CementArgumentError, e:
         # Display the apps exception names instead for the Cement exceptions.
-        print("IustoolsArgumentError > %s" % e)
+        print("IUSToolsArgumentError > %s" % e)
         sys.exit(e.code)
     except CementConfigError, e:
-        print("IustoolsConfigError > %s" % e)
+        print("IUSToolsConfigError > %s" % e)
         sys.exit(e.code)
     except CementRuntimeError, e:
-        print("IustoolsRuntimeError > %s" % e)
+        print("IUSToolsRuntimeError > %s" % e)
         sys.exit(e.code)
-    except IustoolsArgumentError, e:
-        print("IustoolsArgumentError > %s" % e)
+    except IUSToolsArgumentError, e:
+        print("IUSToolsArgumentError > %s" % e)
         sys.exit(e.code)
-    except IustoolsConfigError, e:
-        print("IustoolsConfigError > %s" % e)
+    except IUSToolsConfigError, e:
+        print("IUSToolsConfigError > %s" % e)
         sys.exit(e.code)
-    except IustoolsRuntimeError, e:
-        print("IustoolsRuntimeError > %s" % e)
+    except IUSToolsRuntimeError, e:
+        print("IUSToolsRuntimeError > %s" % e)
         sys.exit(e.code)
     sys.exit(0)
    

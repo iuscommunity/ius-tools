@@ -5,7 +5,7 @@ import sys, os
 # You probably want to change the name, this is a healthy default for paster
 setup(name='iustools.example',
     version='0.1',
-    description='Example plugin for Iustools',
+    description='Example plugin for IUS Community Project Tools',
     classifiers=[], 
     keywords='',
     author='IUS CoreDev Team',

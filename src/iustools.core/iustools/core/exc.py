@@ -1,6 +1,6 @@
-"""iustools exception classes."""
+"""IUSTools exception classes."""
 
-class IustoolsError(Exception):
+class IUSToolsError(Exception):
     """Generic errors."""
     def __init__(self, value, code=1):
         Exception.__init__(self)
@@ -13,20 +13,20 @@ class IustoolsError(Exception):
     def __unicode__(self):
         return unicode(self.msg)
                 
-class IustoolsConfigError(IustoolsError):
+class IUSToolsConfigError(IUSToolsError):
     """Config parsing and setup errors."""
     def __init__(self, value):
         code = 10
-        IustoolsError.__init__(self, value, code)
+        IUSToolsError.__init__(self, value, code)
 
-class IustoolsRuntimeError(IustoolsError):
+class IUSToolsRuntimeError(IUSToolsError):
     """Runtime errors."""
     def __init__(self, value):
         code = 20
-        IustoolsError.__init__(self, value, code)
+        IUSToolsError.__init__(self, value, code)
 
-class IustoolsArgumentError(IustoolsError):
+class IUSToolsArgumentError(IUSToolsError):
     """Argument errors."""
     def __init__(self, value):
         code = 40
-        IustoolsError.__init__(self, value, code)
+        IUSToolsError.__init__(self, value, code)
