@@ -6,23 +6,4 @@
 \
 \
 {# --------------------- 78 character baseline --------------------------- #}\
-
-There are a number of things you can do such as conditional statements:
-
-{% if foo %}\
-Label: ${example.label}
-{% end %}\
-
-Or a for loop:
-
-{% for item in items %}\
-  * ${item}
-{% end %}\
-
-And functions:
-
-{% def greeting(name) %}\
-  Hello, ${name}!
-{% end %}\
-${greeting('World')}\
-${greeting('Edward')}
+${foo} ${bar}

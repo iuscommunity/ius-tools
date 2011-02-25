@@ -1,0 +1,2 @@
+recursive-include iustools/templates/example *
+recursive-include tests *
