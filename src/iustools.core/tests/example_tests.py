@@ -29,19 +29,6 @@ def teardown_func():
     """Teardown operations after every test."""
     pass
     
-@with_setup(setup_func, teardown_func)
-def test_cmd1_output():  
-    # Simulate returns the result dictionary, and the render output when
-    # running the controller command.  This can be used to validate that the
-    # command ran successfully.
-    (res_dict, output_txt) =  simulate([__file__, 'cmd1'])
-    
-    # You can test that the rendered output is what we expected
-    eq_(output_txt, 'bar')
-    
-    # You can test values in the result dictionary directly
-    ok_(res_dict['foo'])
-    
 @raises(IustoolsArgumentError)
 @with_setup(setup_func, teardown_func)
 def test_default_cmd():

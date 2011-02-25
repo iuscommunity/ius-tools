@@ -20,14 +20,14 @@
 #
 # these should probably be changed for production installations if you 
 # follow the FHS (and you should).
-datadir = ~/iustools/data
-tmpdir = ~/iustools/tmp
+datadir = ~/ius-tools/data
+tmpdir = ~/ius-tools/tmp
 
 # This should be the path to your development tree ... 
 #   
-#   i.e. /path/to/iustools/etc/plugins.d
+#   i.e. /path/to/ius-tools/etc/plugins.d
 #
-plugin_config_dir = ~/devel/iustools/config/plugins.d
+plugin_config_dir = ~/ius-tools/config/plugins.d
 
 
 # This is just a cosmetic option... whether to show 'loading plugin...'
@@ -38,7 +38,7 @@ show_plugin_load = false
 # LOGGING
 #
 # Log file path, comment out if no log is required.
-log_file = ~/iustools/log/iustools.log
+log_file = ~/ius-tools/log/ius-tools.log
 
 # Toggle debug output... can be true, false
 debug = false 
