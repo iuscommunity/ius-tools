@@ -37,7 +37,7 @@ ircbot.config['channel'] = 'iuscommunity'
 ircbot.config['nick'] = 'iusbot'
 ircbot.config['process_user'] = 'iusdaemon'
 ircbot.config['pid_file'] = '/var/run/ius-tools/ircbot.pid'
-ircbot.config['script_dir'] = '/usr/libexec'
+
 # command line options
 ircbot.options.add_option('--irc-channel', action='store', dest='channel',
     help='the irc channel to join')
