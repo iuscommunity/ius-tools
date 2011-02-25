@@ -68,7 +68,7 @@ class RootController(CementController):
         raise IUSToolsArgumentError, "A command is required. See --help?"
     
     @expose(irc_command='.packagerepo')
-    def package_repo(self):
+    def get_package_repo(self):
         try:
             package = self.cli_args[1]
         except IndexError, e:
@@ -80,10 +80,10 @@ class RootController(CementController):
         # Package Search
         lp_pkg = lp.branches.getByUrl(url='lp:~ius-coredev/ius/%s' % package)
 
-        if package:
+        if lp_pkg:
             out_txt = '%s' % lp_pkg.web_link
         else:
-            out_txt = '%s is not an IUS Package' % package
+            raise IUSToolsArgumentError, '%s does not exist' % package
 
         print out_txt
         return dict(irc_data=out_txt)

@@ -9,6 +9,7 @@ import os
 from time import sleep
 from pkg_resources import get_distribution
 
+from cement import namespaces
 from cement.core.namespace import CementNamespace, register_namespace
 from cement.core.namespace import get_config
 from cement.core.testing import simulate
@@ -16,6 +17,7 @@ from cement.core.controller import run_controller_command
 from cement.core.hook import define_hook, register_hook
 
 from iustools import irc_commands
+from iustools.core.exc import IUSToolsArgumentError
 
 VERSION = get_distribution('iustools.ircbot').version
 
@@ -80,9 +82,18 @@ def interactive_ircbot_process_hook(config, log, irc):
                     args.insert(0, irc_commands[cmd]['namespace'])    
                 args.insert(0, 'ius-tools')
             
-                (out_dict, out_txt) = simulate(args)
-                reply = out_dict['irc_data']
-
+                try:
+                    # FIX ME: this is a bit of a hack
+                    nam = namespaces[irc_commands[cmd]['namespace']]
+                    nam.controller.cli_opts = None
+                    nam.controller.cli_args = None
+                    namespaces[irc_commands[cmd]['namespace']] = nam
+                    (out_dict, out_txt) = simulate(args)
+                    reply = out_dict['irc_data']
+                except IUSToolsArgumentError, e:
+                    reply = e.msg
+                    out_dict = {}
+                    
                 # FIX ME: Need to consolidate all this .startswith('#') stuff
                 
                 # only send to user directly?
