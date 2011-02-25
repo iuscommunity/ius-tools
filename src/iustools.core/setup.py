@@ -19,6 +19,7 @@ setup(name='iustools.core',
         # remove if not using genshi templating
         "genshi",
         "cement >=0.8.16, <0.9",
+        "launchpadlib",
         ],
     setup_requires=[
         # uncomment for nose testing

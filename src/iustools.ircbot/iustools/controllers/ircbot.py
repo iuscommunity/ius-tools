@@ -102,4 +102,8 @@ class IRCBotController(CementController):
         
         print out_txt
         return dict(irc_data=out_txt)
+    
+    @expose(namespace='ircbot', irc_command='.ping', is_hidden=True)
+    def ping(self):
+        return dict(irc_data='pong')
         

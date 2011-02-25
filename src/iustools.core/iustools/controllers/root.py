@@ -6,11 +6,15 @@ to expose commands to the root namespace which will be accessible under:
   
 """
 
-from cement.core.controller import CementController, expose
+import os, sys
+from launchpadlib.launchpad import Launchpad
+
+from cement.core.controller import CementController
 from cement.core.namespace import get_config
 from cement.core.log import get_logger
 
 from iustools.core.exc import IUSToolsArgumentError
+from iustools.core.controller import expose
 
 log = get_logger(__name__)
 config = get_config()
@@ -63,3 +67,23 @@ class RootController(CementController):
         """
         raise IUSToolsArgumentError, "A command is required. See --help?"
     
+    @expose(irc_command='.packagerepo')
+    def package_repo(self):
+        try:
+            package = self.cli_args[1]
+        except IndexError, e:
+            raise IUSToolsArgumentError, "expecting a second argument (package name)."
+            
+        lp = Launchpad.login_anonymously('ius-tools', 'production')
+        ius = lp.projects.search(text='ius')[0]
+
+        # Package Search
+        lp_pkg = lp.branches.getByUrl(url='lp:~ius-coredev/ius/%s' % package)
+
+        if package:
+            out_txt = '%s' % lp_pkg.web_link
+        else:
+            out_txt = '%s is not an IUS Package' % package
+
+        print out_txt
+        return dict(irc_data=out_txt)

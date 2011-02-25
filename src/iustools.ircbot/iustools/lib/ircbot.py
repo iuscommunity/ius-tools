@@ -12,7 +12,7 @@ class IRC(object):
         self.port = port
         self.channel = channel
         self.nick = nick
-        
+
         if not self.channel.startswith('#'):
             self.channel = '#%s' % self.channel
         
@@ -58,7 +58,7 @@ class IRC(object):
                 msg = m.groups()[4]
                 
                 if msg.startswith(self.nick):
-                    msg = re.sub(self.nick, '', msg).strip()
+                    msg = re.sub(self.nick, '', msg).lstrip(':, ')
                 
                 # its a command, 
                 if msg.startswith('.') and not msg.startswith('..'):
