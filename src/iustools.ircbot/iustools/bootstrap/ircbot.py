@@ -6,8 +6,14 @@ define/register hooks, setup namespaces, and the like.
 """
 
 import os
+import json
+import re
+from urllib2 import urlopen, HTTPError, URLError
+
 from time import sleep
 from pkg_resources import get_distribution
+from datetime import datetime
+from launchpadlib.launchpad import Launchpad
 
 from cement import namespaces
 from cement.core.namespace import CementNamespace, register_namespace
@@ -39,6 +45,9 @@ ircbot.config['channel'] = 'iuscommunity'
 ircbot.config['nick'] = 'iusbot'
 ircbot.config['process_user'] = 'iusdaemon'
 ircbot.config['pid_file'] = '/var/run/ius-tools/ircbot.pid'
+ircbot.config['bitly_baseurl'] = 'http://api.bit.ly/v3/shorten/'
+ircbot.config['bitly_user'] = 'iuscommunity'
+ircbot.config['bitly_apikey'] = None
 
 # command line options
 ircbot.options.add_option('--irc-channel', action='store', dest='channel',
@@ -115,3 +124,38 @@ def interactive_ircbot_process_hook(config, log, irc):
                 else:
                     irc.send(dest, "%s" % reply)
         sleep(1)
+
+@register_hook(name='ircbot_process_hook')
+def new_bug_notify_ircbot_process_hook(config, log, irc):
+    """
+    Monitor LaunchPad for new bugs, and post to irc.
+    """
+    last_update = datetime.utcnow()
+    while True:
+        log.debug('checking LaunchPad for new bugs')
+        now = datetime.utcnow()
+        
+        lp = Launchpad.login_anonymously('ius-tools', 'production')
+        ius = lp.projects.search(text='ius')[0]
+        tasks = ius.searchTasks()
+        for task in tasks:
+            if last_update < task.date_created.replace(tzinfo=None):
+                bitly_url = "%s?format=json&longUrl=%s&login=%s&apiKey=%s" % (
+                        config['ircbot']['bitly_baseurl'],
+                        unicode(task.web_link),
+                        config['ircbot']['bitly_user'],
+                        config['ircbot']['bitly_apikey'],
+                        )
+                bitly_url = re.sub('\+', '%2b', bitly_url)
+                
+                res = urlopen(bitly_url)
+                data = json.loads(res.read())
+                short_url = data['data']['url']
+                
+                reply = "New %s - %s" % (task.title, short_url)
+                irc.send_to_channel(reply)
+
+        last_update = datetime.utcnow()
+        sleep(30)
+    
+    

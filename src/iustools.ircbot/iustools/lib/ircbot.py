@@ -83,4 +83,4 @@ class IRC(object):
         self.ircsock.send("PRIVMSG %s :%s\n" % (nick_or_channel, msg))
             
     def send_to_channel(self, msg):
-        self.send_msg(self.channel, msg)
+        self.send(self.channel, msg)
