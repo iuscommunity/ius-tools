@@ -33,7 +33,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 class IRCBotController(CementController):
-    @expose(namespace='ircbot', is_hidden=True)
+    @expose(namespace='ircbot', is_hidden=False)
     def default(self):
         u = pwd.getpwnam(config['ircbot']['process_user'])
         log.debug('setting process uid(%s) and gid(%s)' % (u.pw_uid, u.pw_gid))
@@ -103,7 +103,8 @@ class IRCBotController(CementController):
         print out_txt
         return dict(irc_data=out_txt)
     
-    @expose(namespace='ircbot', irc_command='.ping', is_hidden=True)
+    @expose(namespace='ircbot', irc_command='.ping')
     def ping(self):
+        print 'pong'
         return dict(irc_data='pong')
         
