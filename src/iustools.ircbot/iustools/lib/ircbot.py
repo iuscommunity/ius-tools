@@ -32,7 +32,10 @@ class IRC(object):
         
         Returns:
         
-            tuple - (from_nick, channel, msg)
+            tuple - (from_nick, from_chan, msg, dest).  dest is the expected
+                    destination of the reply (either a channel, or a PM to
+                    a nick)
+                    
             
         """
         data = self.ircsock.recv(2048).strip('\n\r')
@@ -54,16 +57,21 @@ class IRC(object):
             if m:
                 from_nick = m.groups()[0]
                 from_user = m.groups()[1]
-                channel = m.groups()[3]                    
+                from_chan = m.groups()[3]                    
                 msg = m.groups()[4]
                 
+                if from_chan == self.nick:
+                    dest = from_nick
+                else:
+                    dest = from_chan
+                    
                 if msg.startswith(self.nick):
                     msg = re.sub(self.nick, '', msg).lstrip(':, ')
                 
-                # its a command, 
-                if msg.startswith('.') and not msg.startswith('..'):
-                    res = (from_nick, channel, msg)
-                
+                res = (from_nick, from_chan, msg, dest)                
+
+        if res:
+            log.debug("ircbot received message: from_nick='%s' from_chan='%s' msg='%s' dest='%s'" % res)
         return res
         
     def quit(self):

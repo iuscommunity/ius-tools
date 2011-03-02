@@ -20,7 +20,7 @@ from cement.core.namespace import CementNamespace, register_namespace
 from cement.core.namespace import get_config
 from cement.core.testing import simulate
 from cement.core.controller import run_controller_command
-from cement.core.hook import define_hook, register_hook
+from cement.core.hook import define_hook, register_hook, run_hooks
 
 from iustools import irc_commands
 from iustools.core.exc import IUSToolsArgumentError
@@ -28,6 +28,7 @@ from iustools.core.exc import IUSToolsArgumentError
 VERSION = get_distribution('iustools.ircbot').version
 
 define_hook('ircbot_process_hook')
+define_hook('ircbot_parsemsg_hook')
 
 # Setup the 'ircbot' namespace object
 ircbot = CementNamespace(
@@ -70,59 +71,15 @@ def post_options_hook(*args, **kw):
 def interactive_ircbot_process_hook(config, log, irc):
     """
     This process hook listens on the IRC channel, and responds to interactive
-    requests.
+    requests.  NOTE: only one process can do regular 'polls' on the channel.
     """
     while True:
         res = irc.poll()
         if res:
-            log.debug('ircbot received message: %s %s %s' % res)
-            (from_nick, from_chan, msg) = res
-            if from_chan == irc.nick:
-                dest = from_nick
-            else:
-                dest = from_chan
+            for hook in run_hooks('ircbot_parsemsg_hook', config, log, irc, res):
+                pass
+            #(from_nick, from_chan, msg, dest) = res
             
-            args = msg.split() 
-            cmd = args.pop(0) # first part of msg is command, rest args
-            if cmd in irc_commands.keys():            
-                # need to keep arg order
-                args.insert(0, irc_commands[cmd]['func'])
-                if irc_commands[cmd]['namespace'] != 'root':
-                    args.insert(0, irc_commands[cmd]['namespace'])    
-                args.insert(0, 'ius-tools')
-            
-                try:
-                    # FIX ME: this is a bit of a hack
-                    nam = namespaces[irc_commands[cmd]['namespace']]
-                    nam.controller.cli_opts = None
-                    nam.controller.cli_args = None
-                    namespaces[irc_commands[cmd]['namespace']] = nam
-                    (out_dict, out_txt) = simulate(args)
-                    reply = out_dict['irc_data']
-                except IUSToolsArgumentError, e:
-                    reply = e.msg
-                    out_dict = {}
-                    
-                # FIX ME: Need to consolidate all this .startswith('#') stuff
-                
-                # only send to user directly?
-                if out_dict.has_key('irc_pm') and out_dict['irc_pm']:    
-                    if dest.startswith('#'):
-                        irc.send(from_chan, "%s: check your PM." % from_nick)
-                        irc.send(from_nick, "%s" % reply)
-                    else:
-                        irc.send(from_nick, "%s" % reply)
-                else:
-                    if dest.startswith('#'):
-                        irc.send(dest, "%s: %s" % (from_nick, reply))
-                    else:
-                        irc.send(dest, "%s" % reply)
-            else:
-                reply = "I don't understand that command."
-                if dest.startswith('#'):
-                    irc.send(dest, "%s: %s" % (from_nick, reply))
-                else:
-                    irc.send(dest, "%s" % reply)
         sleep(1)
 
 @register_hook(name='ircbot_process_hook')
@@ -156,6 +113,115 @@ def new_bug_notify_ircbot_process_hook(config, log, irc):
                 irc.send_to_channel(reply)
 
         last_update = datetime.utcnow()
-        sleep(30)
+        sleep(300)
     
+@register_hook(name='ircbot_parsemsg_hook')
+def exec_commands_ircbot_parsemsg_hook(config, log, irc, poll_result):
+    """
+    Parse the result of irc.poll() and execute commands if the msg was
+    a command.
     
+    """
+    
+    (from_nick, from_chan, msg, dest) = poll_result
+    
+    # its a command, 
+    if not msg.startswith('.'):
+        log.debug('msg did not start with a .command... skipping')
+        return
+    
+    args = msg.split() 
+    cmd = args.pop(0) # first part of msg is command, rest args
+    if cmd in irc_commands.keys():            
+        # need to keep arg order
+        args.insert(0, irc_commands[cmd]['func'])
+        if irc_commands[cmd]['namespace'] != 'root':
+            args.insert(0, irc_commands[cmd]['namespace'])    
+        args.insert(0, 'ius-tools')
+    
+        try:
+            # FIX ME: this is a bit of a hack
+            nam = namespaces[irc_commands[cmd]['namespace']]
+            nam.controller.cli_opts = None
+            nam.controller.cli_args = None
+            namespaces[irc_commands[cmd]['namespace']] = nam
+            (out_dict, out_txt) = simulate(args)
+            reply = out_dict['irc_data']
+        except IUSToolsArgumentError, e:
+            reply = e.msg
+            out_dict = {}
+            
+        # FIX ME: Need to consolidate all this .startswith('#') stuff
+        
+        # only send to user directly?
+        if out_dict.has_key('irc_pm') and out_dict['irc_pm']:    
+            if dest.startswith('#'):
+                irc.send(from_chan, "%s: check your PM." % from_nick)
+                irc.send(from_nick, "%s" % reply)
+            else:
+                irc.send(from_nick, "%s" % reply)
+        else:
+            if dest.startswith('#'):
+                irc.send(dest, "%s: %s" % (from_nick, reply))
+            else:
+                irc.send(dest, "%s" % reply)
+    else:
+        reply = "I don't understand that command."
+        if dest.startswith('#'):
+            irc.send(dest, "%s: %s" % (from_nick, reply))
+        else:
+            irc.send(dest, "%s" % reply)
+
+@register_hook(name='ircbot_parsemsg_hook')
+def lookup_bug_info_ircbot_parsemsg_hook(config, log, irc, poll_result):
+    """
+    Parse the result of irc.poll() and look for txt matching LaunchPad
+    bug id's.  If found, print bug info to the channel.
+    
+    """
+    
+    (from_nick, from_chan, msg, dest) = poll_result
+    lp = Launchpad.login_anonymously('ius-tools', 'production')
+    
+    # don't respond to ourself:
+    if from_nick == irc.nick:
+        return
+        
+    bug_ids = []
+    res = re.findall('#[0-9]+', msg)
+    for match in res:
+        bug_ids.append(match.lstrip('#'))
+    
+    res = re.findall('https:\/\/bugs\.launchpad\.net\/ius\/\+bug\/[0-9]+', msg)
+    for match in res:
+        _id = re.sub('https:\/\/bugs\.launchpad\.net\/ius\/\+bug\/', '', match)
+        if _id:
+            bug_ids.append(_id)
+    
+    for _id in bug_ids:
+        log.debug('looking up bug #%s' % _id)
+        try:
+            bug = lp.bugs[int(_id)]
+        except KeyError, e:
+            log.debug('LaunchPad bug %s does not exist' % _id)
+            reply = "I tried to lookup LP#%s, but it doesn't exist." % _id
+            irc.send_to_channel(reply)
+            continue
+            
+        bitly_url = "%s?format=json&longUrl=%s&login=%s&apiKey=%s" % (
+                    config['ircbot']['bitly_baseurl'],
+                    unicode(bug.web_link),
+                    config['ircbot']['bitly_user'],
+                    config['ircbot']['bitly_apikey'],
+                    )
+        bitly_url = re.sub('\+', '%2b', bitly_url)
+        
+        res = urlopen(bitly_url)
+        data = json.loads(res.read())
+        short_url = data['data']['url']
+        
+        reply = "LP#%s - %s - %s" % (_id, bug.title, short_url)
+        irc.send_to_channel(reply)
+        
+        
+        
