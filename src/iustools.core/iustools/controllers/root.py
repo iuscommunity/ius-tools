@@ -6,7 +6,11 @@ to expose commands to the root namespace which will be accessible under:
   
 """
 
-import os, sys
+import re
+import os
+import sys
+import json
+from urllib2 import urlopen
 from launchpadlib.launchpad import Launchpad
 
 from cement.core.controller import CementController
@@ -87,3 +91,39 @@ class RootController(CementController):
 
         print out_txt
         return dict(irc_data=out_txt)
+
+    @expose(irc_command='.bug')
+    def bug_info(self):
+        """ 
+        Look up bug info, expects next argument to be an ID.
+        """
+        lp = Launchpad.login_anonymously('ius-tools', 'production')
+    
+        try:
+            bug_id = int(self.cli_args[1].lstrip('LP#').strip())
+        except ValueError, e:
+            raise IUSToolsArgumentError, e.args[0]
+            
+        log.debug('looking up bug #%s' % bug_id)
+        try:
+            bug = lp.bugs[int(bug_id)]
+        except KeyError, e:
+            raise IUSToolsArgumentError, \
+                'LaunchPad bug %s does not exist' % bug_id
+        
+        bitly_url = "%s?format=json&longUrl=%s&login=%s&apiKey=%s" % (
+                    config['ircbot']['bitly_baseurl'],
+                    unicode(bug.web_link),
+                    config['ircbot']['bitly_user'],
+                    config['ircbot']['bitly_apikey'],
+                    )
+        bitly_url = re.sub('\+', '%2b', bitly_url)
+    
+        res = urlopen(bitly_url)
+        data = json.loads(res.read())
+        short_url = data['data']['url']
+    
+        out_txt = "LP#%s - %s - %s" % (bug_id, bug.title, short_url)
+        print out_txt
+        return dict(irc_data=out_txt)
+        
