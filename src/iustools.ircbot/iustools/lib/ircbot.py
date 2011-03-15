@@ -7,11 +7,12 @@ from cement.core.log import get_logger
 log = get_logger(__name__)
 
 class IRC(object):
-    def __init__(self, server, port, channel, nick):
+    def __init__(self, server, port, channel, nick, recv_bytes=512):
         self.server = server
         self.port = port
         self.channel = channel
         self.nick = nick
+        self.recv_bytes = recv_bytes
 
         if not self.channel.startswith('#'):
             self.channel = '#%s' % self.channel
@@ -38,7 +39,7 @@ class IRC(object):
                     
             
         """
-        data = self.ircsock.recv(2048).strip('\n\r')
+        data = self.ircsock.recv(int(self.recv_bytes)).strip('\n\r')
         
         res = None
         

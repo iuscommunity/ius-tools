@@ -44,6 +44,8 @@ ircbot.config['server'] = 'irc.freenode.net'
 ircbot.config['port'] = 6667
 ircbot.config['channel'] = 'iuscommunity'
 ircbot.config['nick'] = 'iusbot'
+ircbot.config['ping_cycle'] = 60
+ircbot.config['recv_bytes'] = 2048 
 ircbot.config['process_user'] = 'iusdaemon'
 ircbot.config['pid_file'] = '/var/run/ius-tools/ircbot.pid'
 ircbot.config['bitly_baseurl'] = 'http://api.bit.ly/v3/shorten/'
@@ -81,6 +83,17 @@ def interactive_ircbot_process_hook(config, log, irc):
             #(from_nick, from_chan, msg, dest) = res
             
         sleep(1)
+
+@register_hook(name='ircbot_process_hook')
+def keepalive_process_hook(config, log, irc):
+    """
+    Send PINGs to the server to keep the connection alive
+    based on config['ircbot']['ping_cycle'].
+    
+    """
+    while True:
+        irc.ping()
+        sleep(int(config['ircbot']['ping_cycle']))
 
 @register_hook(name='ircbot_process_hook')
 def new_bug_notify_ircbot_process_hook(config, log, irc):

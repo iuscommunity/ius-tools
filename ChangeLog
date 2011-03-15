@@ -2,7 +2,15 @@
 0.1.1 - unreleased
 ------------------------------------------------------------------------------
 
+FEATURE ENHANCEMENTS:
+
  +  Added new hook ircbot_parsemsg_hook, all incoming msg's are passed to these
     hooks
-  
  +  Added bug-info (.bug) command
+
+BUG FIXES:
+
+ -	Added new hook keepalive_process_hook to send regular ping responses to 
+    the server.  Keeps bot from being disconnected when no activity is in the
+	channel.
+

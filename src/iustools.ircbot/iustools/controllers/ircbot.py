@@ -50,7 +50,9 @@ class IRCBotController(CementController):
         irc = IRC(server=config['ircbot']['server'],
                   port=config['ircbot']['port'],
                   channel=config['ircbot']['channel'],
-                  nick=config['ircbot']['nick'])
+                  nick=config['ircbot']['nick'],
+                  recv_bytes=config['ircbot']['recv_bytes']
+                  )
         irc.connect()
         
         # just run a single process hook, or all
