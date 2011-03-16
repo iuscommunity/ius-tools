@@ -18,7 +18,7 @@ setup(name='iustools.ossvt',
     install_requires=[
         "genshi",
         "cement >=0.8.16, <0.9",
-        "iustools",
+        "iustools.core",
         ],
     setup_requires=[
         ],
