@@ -4,15 +4,13 @@ from cement.core.controller import CementController, expose
 from iustools.model.ossvt import OssvtModel
 from cement.core.namespace import get_config
 from iustools.lib.upstream import package, packages, latest 
-from iustools.lib.ius import ius_version
+from iustools.lib.ius import ius_stable, ius_testing
 from iustools.lib.ver_compare import vcompare
 import argparse
 
 class colors:
-    pink = '\033[95m'
     red = '\033[91m'
     green = '\033[92m'
-    gold = '\033[93m'
     blue = '\033[94m'
     end = '\033[0m'
 
@@ -25,36 +23,42 @@ class OssvtController(CementController):
 
         if config['ossvt']['name']:
             pkg = package(config['ossvt']['name'])
-            with_launchpad = False
         else:
             pkg = packages()
 
         if pkg:
             # Print out our Packages and Info
-            print '%-30s %-15s %-15s %s' % ('name', 'ius ver', 'upstream ver', 'status')
-            print '='*75 
+            print config['ossvt']['layout'] % config['ossvt']['layout_titles']
+            print '='*75
 
             for p in pkg:
                 upstream_ver = latest(p)
-                ius_ver = ius_version(p['name'])
+                ius_ver = ius_stable(p['name'])
 
+                # Do the actual version comparisons
                 compare = vcompare(ius_ver, upstream_ver)
-                
-                # Print if package is out of date
                 if compare:
-                    print '%-30s %-15s %-15s %s' % (
-                                                    p['name'], 
-                                                    ius_ver, 
-                                                    upstream_ver, 
-                                                    colors.red + 'outdated' + colors.end
-                                                   )
+                    status = 'outdated'
+                    color = colors.red
 
-                # Print if package is up to date
+                    # Since its out of date we should check testing
+                    try:
+                        ius_test = ius_testing(p['name'])
+                        compare_testing = vcompare(ius_test, upstream_ver)
+                        if not compare_testing:
+                            ius_ver = ius_test
+                            status = 'testing'
+                            color = colors.blue
+
+                    # If we got a IndexError testing did not have the package
+                    except IndexError:
+                        pass
+
                 else:
-                    if config['ossvt']['with_up2date']:
-                        print '%-30s %-15s %-15s %s' % (
-                                                        p['name'], 
-                                                        ius_ver, 
-                                                        upstream_ver, 
-                                                        colors.green + 'updated' + colors.end
-                                                       )
+                    status = 'up2date'
+                    color = colors.green
+
+                print config['ossvt']['layout'] % (p['name'], ius_ver, upstream_ver, color + status + colors.end)
+
+        else:
+            print 'Not a valid package name'    
