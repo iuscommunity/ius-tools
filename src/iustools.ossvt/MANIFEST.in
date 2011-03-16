@@ -1,0 +1,2 @@
+recursive-include iustools/templates/ossvt *
+recursive-include tests *
