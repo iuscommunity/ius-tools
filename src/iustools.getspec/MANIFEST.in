@@ -1,0 +1,2 @@
+recursive-include iustools/templates/getspec *
+recursive-include tests *
