@@ -2,7 +2,7 @@
 [root]
 
 # This is how you'd enable a plugin for testing
-[ossvt]
+[versiontracker]
 enable_plugin = true
 provider = iustools
 foo = 'some value'

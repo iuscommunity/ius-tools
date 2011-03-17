@@ -1,0 +1,2 @@
+recursive-include iustools/templates/versiontracker *
+recursive-include tests *

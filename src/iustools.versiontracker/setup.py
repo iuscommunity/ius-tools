@@ -3,9 +3,9 @@ from setuptools import setup, find_packages
 import sys, os
 
 # You probably want to change the name, this is a healthy default for paster
-setup(name='iustools.ossvt',
+setup(name='iustools.versiontracker',
     version='0.1',
-    description='Ossvt plugin for Iustools',
+    description='Versiontracker plugin for Iustools',
     classifiers=[], 
     keywords='',
     author='IUS CoreDev Team',

@@ -30,11 +30,11 @@ def teardown_func():
     pass
     
 @with_setup(setup_func, teardown_func)
-def test_ossvt_cmd_output():  
+def test_versiontracker_cmd_output():  
     # Simulate returns the result dictionary, and the render output when
     # running the controller command.  This can be used to validate that the
     # command ran successfully.
-    (res_dict, output_txt) = simulate([__file__, 'ossvt-command2'])
+    (res_dict, output_txt) = simulate([__file__, 'versiontracker-command2'])
 
     # You can test that the rendered output is what we expected
     eq_(output_txt, 'Hello World\n')
@@ -56,10 +56,10 @@ def test_config_cli_options():
     # example plugin for this test
     
     # First it is set by what is in the config file
-    eq_(config['ossvt']['foo'], 'some value')
+    eq_(config['versiontracker']['foo'], 'some value')
 
     # Then overridden by cli_opts
-    simulate([__file__, 'ossvt', 'ossvt-sub-command', '--foo=bar'])
+    simulate([__file__, 'versiontracker', 'versiontracker-sub-command', '--foo=bar'])
     
     # now we validate that the config option was set by the cli_opt --foo
-    eq_(config['ossvt']['foo'], 'bar')
+    eq_(config['versiontracker']['foo'], 'bar')

@@ -11,7 +11,7 @@ def packages():
 the configuration will contain needed regular expressions and 
 URLs to grab latest software version number.'''
     config = get_config()
-    pkg_dir = config['ossvt']['pkg_dir']
+    pkg_dir = config['versiontracker']['pkg_dir']
     packages = []
     for _file in glob("%s/*.conf" % pkg_dir):
         c = ConfigObj(_file)
@@ -25,7 +25,7 @@ def package(pkg):
 the configuration will contain needed regular expression and
 URL to grab latest software version number.'''
     config = get_config()
-    pkg_dir = config['ossvt']['pkg_dir']
+    pkg_dir = config['versiontracker']['pkg_dir']
     package = []
     for _file in glob("%s/%s.conf" % (pkg_dir, pkg)):
         c = ConfigObj(_file)

@@ -1,12 +1,11 @@
-"""ossvt controller class to expose commands for iustools."""
+"""versiontracker controller class to expose commands for iustools."""
 
 from cement.core.controller import CementController, expose
-from iustools.model.ossvt import OssvtModel
+from iustools.model.versiontracker import VersiontrackerModel
 from cement.core.namespace import get_config
 from iustools.lib.upstream import package, packages, latest 
 from iustools.lib.ius import ius_stable, ius_testing
 from iustools.lib.ver_compare import vcompare
-import argparse
 
 class colors:
     red = '\033[91m'
@@ -16,19 +15,19 @@ class colors:
 
 config = get_config()
 
-class OssvtController(CementController):
+class VersiontrackerController(CementController):
 
-    @expose(namespace='ossvt')
-    def versions(self):
+    @expose()
+    def ossvt(self):
 
-        if config['ossvt']['name']:
-            pkg = package(config['ossvt']['name'])
-        else:
+        try:
+            pkg = package(self.cli_args[1])
+        except IndexError:
             pkg = packages()
 
         if pkg:
             # Print out our Packages and Info
-            print config['ossvt']['layout'] % config['ossvt']['layout_titles']
+            print config['versiontracker']['layout'] % config['versiontracker']['layout_titles']
             print '='*75
 
             for p in pkg:
@@ -58,7 +57,7 @@ class OssvtController(CementController):
                     status = 'up2date'
                     color = colors.green
 
-                print config['ossvt']['layout'] % (p['name'], ius_ver, upstream_ver, color + status + colors.end)
+                print config['versiontracker']['layout'] % (p['name'], ius_ver, upstream_ver, color + status + colors.end)
 
         else:
             print 'Not a valid package name'    

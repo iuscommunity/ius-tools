@@ -4,7 +4,7 @@ SOURCE INSTALLATION:
     $ sudo python setup.py install
 
     # The following is one command
-    $ sudo cp -a ./etc/iustools/plugins.d/ossvt.conf \
+    $ sudo cp -a ./etc/iustools/plugins.d/versiontracker.conf \
                  /etc/iustools/plugins.d/
     
     
@@ -12,4 +12,4 @@ USAGE:
 
     $ iustools --help
     
-    $ iustools ossvt --help
+    $ iustools versiontracker --help
