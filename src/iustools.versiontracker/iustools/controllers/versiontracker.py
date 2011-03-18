@@ -30,7 +30,7 @@ class VersiontrackerController(CementController):
             print config['versiontracker']['layout'] % config['versiontracker']['layout_titles']
             print '='*75
 
-            for p in pkg:
+            for p in sorted(pkg, key=lambda a: a['name']):
                 upstream_ver = latest(p)
                 ius_ver = ius_stable(p['name'])
 
