@@ -21,6 +21,9 @@ from iustools.core.exc import IUSToolsArgumentError
 from iustools.core.controller import expose
 
 from iustools.lib.lp import get_link, get_download, get_changelog
+from iustools.lib.testing_age import getrelease, getpackage
+from datetime import datetime, timedelta
+from operator import itemgetter
 
 log = get_logger(__name__)
 config = get_config()
@@ -168,3 +171,45 @@ class RootController(CementController):
 
         # Print only top 5 lines of changelog 
         get_changelog(spec) 
+
+
+    @expose()
+    def testing_age(self):
+        # Get our dictionary
+        rpms = {}
+        
+        # Define our Month dictionary
+        months = {}
+        months['Jan'] = 1
+        months['Fed'] = 2
+        months['Mar'] = 3
+        months['Apr'] = 4
+        months['May'] = 5
+        months['Jun'] = 6
+        months['Jul'] = 7
+        months['Aug'] = 8
+        months['Sep'] = 9
+        months['Oct'] = 10
+        months['Nov'] = 11
+        months['Dec'] = 12
+        
+        for release in getrelease():
+            packages = getpackage(release)
+            for package in packages:
+                # the date format for right now
+                now = datetime.now().date()
+                timestamp = package[1].split('-')
+                day = timestamp[0]
+                month = timestamp[1]
+                month = months[month]
+                year = timestamp[2].split()
+                year = year[0]
+
+                date = datetime(int(year), int(month), int(day)).date()
+                delta = (now - date)
+                rpms[package[0]] = int(delta.days)
+
+        print '%-10s %s' % ('Age', 'Package')
+        print '-'*45
+        for package in sorted(rpms):
+            print '%-10s %s' % (rpms[package], package)
