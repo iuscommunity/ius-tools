@@ -31,6 +31,12 @@ def options_hook(*args, **kwargs):
         help='user to run as (where applicable)')
     root_options.add_option('--daemonize', action='store_true',
         dest='daemonize', default=None, help="daemonize the process")   
+    root_options.add_option('-f', '--filter', action='store',
+        dest='filter', help='filter string', metavar='STR')
+    root_options.add_option('--package', action='store',
+        dest='package', help='package name', metavar='PKG')
+    root_options.add_option('--release', action='store',
+        dest='release', help='rhel release version', metavar='INT')
     return ('root', root_options)
 
 # Import all additional (non-plugin) bootstrap libraries here    
