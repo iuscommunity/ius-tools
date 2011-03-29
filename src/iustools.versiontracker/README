@@ -1,7 +1,0 @@
-Your Package Configuration direct is expected in /usr/share/ossvt/pkgs/
-
-These package can be pulled from:
-   https://github.com/jness/ossvt/tree/master/ossvt/pkgs
-
-This location can be altered in the iustools config:
-   iustools.versiontracker/iustools/bootstrap/versiontracker.py

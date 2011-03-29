@@ -1,0 +1,9 @@
+# This configuration is specifically meant to be used for testing
+[root]
+
+# This is how you'd enable a plugin for testing
+[version_tracker]
+enable_plugin = true
+provider = iustools
+ius_baseurl = 'http://dl.iuscommunity.org/pub/ius'
+pkg_dir = './pkgs'
