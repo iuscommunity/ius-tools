@@ -7,6 +7,8 @@ FEATURE ENHANCEMENTS:
  +  Added new hook ircbot_parsemsg_hook, all incoming msg's are passed to these
     hooks
  +  Added bug-info (.bug) command
+ +  Added --release, --package, --filter features to version-tracker plugin.
+
 
 BUG FIXES:
 
