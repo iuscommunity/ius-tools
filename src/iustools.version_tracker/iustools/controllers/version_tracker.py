@@ -48,35 +48,45 @@ class VersionTrackerController(CementController):
                 ius_ver = get_ius_version(pkg_dict['name'], 
                                           self.cli_opts.release, 
                                           'stable')
-                
-                # package didn't exist
-                if not ius_ver:
-                    continue
-                    
-                if ius_ver == upstream_ver:
-                    status = 'current'
-                    color = colors.green
-                    
-                else:
-                    status = 'outdated'
-                    color = colors.red
-                    
-                    # Since its out of date we should check testing
-                    try:
-                        ius_test = get_ius_version(pkg_dict['name'], 
-                                                   self.cli_opts.release, 
-                                                   'testing')
-                        if ius_test == upstream_ver:
-                            ius_ver = ius_test
-                            status = 'testing'
-                            color = colors.blue
 
-                    # If we got a IndexError testing did not have the package
-                    except IndexError:
-                        pass
+                # verify we pulled a version
+                if upstream_ver:
+                
+                    # package didn't exist
+                    if not ius_ver:
+                        continue
+                        
+                    if ius_ver == upstream_ver:
+                        status = 'current'
+                        color = colors.green
+                        
+                    else:
+                        status = 'outdated'
+                        color = colors.red
+                        
+                        # Since its out of date we should check testing
+                        try:
+                            ius_test = get_ius_version(pkg_dict['name'], 
+                                                       self.cli_opts.release, 
+                                                       'testing')
+                            if ius_test == upstream_ver:
+                                ius_ver = ius_test
+                                status = 'testing'
+                                color = colors.yellow
+
+                        # If we got a IndexError testing did not have the package
+                        except IndexError:
+                            pass
+                else:
+                    status = 'unknown'
+                    color = colors.red
+                    upstream_ver = '??????'
+
+                # Print out for the viewer
                 print config['version_tracker']['layout'] % \
                         (pkg_dict['name'], ius_ver, upstream_ver, 
                          color + status + colors.end)
+
             print
             return dict(packages=packages)
                 
