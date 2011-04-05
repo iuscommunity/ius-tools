@@ -65,18 +65,19 @@ class VersionTrackerController(CementController):
                         color = colors.red
                         
                         # Since its out of date we should check testing
-                        try:
-                            ius_test = get_ius_version(pkg_dict['name'], 
-                                                       self.cli_opts.release, 
-                                                       'testing')
+                        ius_test = get_ius_version(pkg_dict['name'], 
+                                                   self.cli_opts.release, 
+                                                   'testing')
+                        if ius_test:
                             if ius_test == upstream_ver:
                                 ius_ver = ius_test
                                 status = 'testing'
                                 color = colors.yellow
+                            else:
+                                ius_ver = ius_test
+                                status = 'testing outdated'
+                                color = colors.red
 
-                        # If we got a IndexError testing did not have the package
-                        except IndexError:
-                            pass
                 else:
                     status = 'unknown'
                     color = colors.red
