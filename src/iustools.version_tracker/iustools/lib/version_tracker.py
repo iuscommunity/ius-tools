@@ -89,7 +89,11 @@ def get_upstream_version(pkg_dict):
     else:
         request.add_data(urlencode(post_vars))
 
-    content = urllib2.urlopen(request).read()
+    try:
+        content = urllib2.urlopen(request).read()
+    except urllib2.URLError:
+        return False
+
     versions = re.compile(pkg_dict['regex']).findall(content)
     
     # simple sorted does not work with versions containing
