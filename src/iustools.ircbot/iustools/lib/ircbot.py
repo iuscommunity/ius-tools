@@ -1,6 +1,7 @@
 
 import re
 import socket
+from time import sleep
 
 from cement.core.log import get_logger
 
@@ -18,13 +19,18 @@ class IRC(object):
             self.channel = '#%s' % self.channel
         
     def connect(self):
-        self.ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.ircsock.connect((self.server, int(self.port)))
-        self.ircsock.send("USER %s %s %s :IUS IRC Bot.\n" % \
-                         (self.nick, self.nick, self.nick))
-        self.ircsock.send("NICK "+ self.nick +"\n")
-        self.join_channel(self.channel)
-        return self.ircsock
+        while True:
+            try:
+                self.ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.ircsock.connect((self.server, int(self.port)))
+                self.ircsock.send("USER %s %s %s :IUS IRC Bot.\n" % \
+                                (self.nick, self.nick, self.nick))
+                self.ircsock.send("NICK "+ self.nick +"\n")
+                self.join_channel(self.channel)
+                return self.ircsock
+            except socket.error, e:
+                log.error("Caught socket.error: %s. Sleeping 30 seconds..." % e)
+                sleep(30)
 
     def poll(self, count=2048):
         """
@@ -39,8 +45,18 @@ class IRC(object):
                     
             
         """
-        data = self.ircsock.recv(int(self.recv_bytes)).strip('\n\r')
-        
+        data = ''
+        try:
+            data = self.ircsock.recv(int(self.recv_bytes)).strip('\n\r')
+        except socket.error, e:
+            log.error("Caught socket.error: %s" % e)
+            # retry
+            try:
+                self.connect()
+                data = self.ircsock.recv(int(self.recv_bytes)).strip('\n\r')
+            except:
+                pass
+
         res = None
         
         if re.search("PING :", data):
@@ -81,15 +97,43 @@ class IRC(object):
 
     def join_channel(self, channel):
         log.info('joining channel %s' % channel)
-        self.ircsock.send("JOIN "+ channel +"\n")
-    
+        try:
+            self.ircsock.send("JOIN "+ channel +"\n")
+        except socket.error, e:
+            log.error("Caught socket.error: %s" % e)
+            try:
+                # retry - XXX FIX ME: this can result in a maximum recursion
+                self.connect()
+                self.ircsock.send("JOIN "+ channel +"\n")
+            except:
+                pass
+
+            
     def ping(self):
-        log.debug('sending ping response')
-        self.ircsock.send("PONG :pingis\n")
+        log.debug('sending ping')
+        try:
+            self.ircsock.send("PONG :pingis\n")
+        except socket.error, e:
+            log.error("Caught socket.error: %s" % e)
+            try:
+                # retry
+                self.connect()
+                self.ircsock.send("PONG :pingis\n")
+            except:
+                pass
 
     def send(self, nick_or_channel, msg):
         log.debug('sending msg to %s' % nick_or_channel)
-        self.ircsock.send("PRIVMSG %s :%s\n" % (nick_or_channel, msg))
+        try:
+            self.ircsock.send("PRIVMSG %s :%s\n" % (nick_or_channel, msg))
+        except socket.error, e:
+            log.error("Caught socket.error: %s" % e)
+            try:
+                # retry
+                self.connect()
+                self.ircsock.send("PRIVMSG %s :%s\n" % (nick_or_channel, msg))
+            except:
+                pass
             
     def send_to_channel(self, msg):
         self.send(self.channel, msg)

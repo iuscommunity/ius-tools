@@ -12,7 +12,8 @@ FEATURE ENHANCEMENTS:
 
 BUG FIXES:
 
- -	Added new hook keepalive_process_hook to send regular ping responses to 
+ -  Added new hook keepalive_process_hook to send regular ping responses to 
     the server.  Keeps bot from being disconnected when no activity is in the
-	channel.
-
+    channel.
+ -  Resolved GH#1 ircbot fails to reconnect (unhandled socket.error 
+    exception).  Also added a lot of error handling in lib/ircbot.py. 
