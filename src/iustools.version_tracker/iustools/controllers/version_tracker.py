@@ -44,11 +44,18 @@ class VersionTrackerController(CementController):
             raise IUSToolsArgumentError, "Invalid release."
             
         if packages:
+            with_launchpad = False
             # Create Launchpad Ticket
             if config['version_tracker']['launchpad']:
-                with_launchpad = True
-            else:
-                with_launchpad = False
+                from iustools.lib.mf_identity import mfgroups
+                groups = mfgroups()
+                if groups:
+                    if 'ius-coredev' in groups:
+                        with_launchpad = True
+                    else:
+                        print '\nYou are not apart of the ius-coredev group'
+                else:
+                    print 'Unable to determine MF group'
 
             # Print out our Packages and Info
             print
