@@ -4,7 +4,6 @@ from cement.core.controller import CementController, expose
 from cement.core.namespace import get_config
 
 from iustools.core.exc import IUSToolsArgumentError
-from iustools.helpers.compare import vcompare
 from iustools.lib.version_tracker import get_upstream_version, get_ius_version
 from iustools.lib.version_tracker import get_packages
 from iustools.lib.version_tracker import bug_titles, compare_titles, create_bug
