@@ -30,3 +30,10 @@ version_tracker.config['layout_titles'] = ('name', 'ius ver', 'upstream ver', 's
 # Officialize and register the namespace
 register_namespace(version_tracker)
 
+# Plugin options
+version_tracker.config['launchpad'] = None
+version_tracker.options.add_option('--launchpad', action='store_true', dest='launchpad',
+    help='if you wish the tool to add Launchpad tickets', default=None)
+version_tracker.config['email'] = None
+version_tracker.options.add_option('--email', action='store_true', dest='email',
+    help='send output in email to configured recipients', default=None)

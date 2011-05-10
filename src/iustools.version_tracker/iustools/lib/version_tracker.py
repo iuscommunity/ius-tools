@@ -5,6 +5,9 @@ import urllib2
 from glob import glob
 from configobj import ConfigObj
 from urllib import urlencode
+from smtplib import SMTP
+from socket import error
+
 
 from cement.core.namespace import get_config
 
@@ -107,3 +110,69 @@ def get_upstream_version(pkg_dict):
         return False
     else:
         return version
+
+from launchpadlib.launchpad import Launchpad
+import os, sys
+
+def bug_titles():
+    '''Get titles for all bugs in the IUS Projects Launchpad'''
+    titles = []
+    launchpad = Launchpad.login_anonymously(os.path.basename(sys.argv[0]), 'production')
+    ius = launchpad.projects.search(text='ius')[0]
+    tasks = ius.searchTasks()
+    for task in tasks:
+        titles.append(task.bug.title)
+    return titles
+
+def compare_titles(titles, name, version):
+    '''Using the tiles from bug_title() we can compare our software name and version with
+the Launchpad Bug titles, this way we can see if a Bug already exits'''
+    for title in titles:
+        mytitle = 'UPDATE REQUEST: ' +  name + ' ' +  str(version) + ' is available upstream'
+        if title == mytitle:
+            return True
+
+def create_bug(name, version, url):
+    '''Taking advantage of launchpadlib we can create a Launchpad Bug, 
+it is assumed you first used compare_titles() to verify a bug does not already exits'''
+    launchpad = Launchpad.login_with(os.path.basename(sys.argv[0]), 'production')
+    ius = launchpad.projects.search(text='ius')[0]
+    mytitle = 'UPDATE REQUEST: ' +  name + ' ' +  str(version) + ' is available upstream'
+    launchpad.bugs.createBug(description='New Source from Upstream: ' + url, title=mytitle, target=ius)
+
+def email(layout, layout_titles, output):
+    '''Send email notifications using local SMTP server'''
+    print '\nsending email...'
+    fromaddr = 'IUS Coredev <ius-coredev@lists.launchpad.net>'
+    toaddr = '<ius-coredev@lists.launchpad.net>'
+    subject = '[ius-community] IUS Version Tracker'
+
+    header = ("From: %s\r\nTo: %s\r\nSubject: %s\r\n"
+                    % (fromaddr, toaddr, subject))
+    header = header + 'MIME-Version: 1.0\r\n'
+    header = header + 'Content-Type: text/html\r\n\r\n'
+ 
+    body = '<pre>'
+    body = body + layout % layout_titles
+    body = body + '\n'
+    body = body + '='*75
+    body = body + '\n'
+
+    for p in output:
+        body = body + layout % (p[0], p[1], p[2], p[3])
+        body = body + '\n'
+
+    body = body + '</pre>'
+    msg = header + body
+
+    try:
+        server = SMTP('localhost')
+        server.set_debuglevel(0)
+
+    except error:
+        print "Unable to connect to SMTP server"
+
+    else:
+        server.sendmail(fromaddr, toaddr, msg)
+        server.quit()
+
