@@ -130,7 +130,11 @@ class VersionTrackerController(CementController):
             if config['version_tracker']['email']:
                 layout = config['version_tracker']['layout']
                 layout_titles = config['version_tracker']['layout_titles']
-                email(layout, layout_titles, output)
+                toaddr = config['version_tracker']['toaddr']
+                fromaddr = config['version_tracker']['fromaddr']
+                subject = config['version_tracker']['subject']
+
+                email(layout, layout_titles, output, fromaddr, toaddr, subject)
 
             return dict(packages=packages)
                 

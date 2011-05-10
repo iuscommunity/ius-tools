@@ -140,12 +140,9 @@ it is assumed you first used compare_titles() to verify a bug does not already e
     mytitle = 'UPDATE REQUEST: ' +  name + ' ' +  str(version) + ' is available upstream'
     launchpad.bugs.createBug(description='New Source from Upstream: ' + url, title=mytitle, target=ius)
 
-def email(layout, layout_titles, output):
+def email(layout, layout_titles, output, fromaddr, toaddr, subject):
     '''Send email notifications using local SMTP server'''
-    print '\nsending email...'
-    fromaddr = 'IUS Coredev <ius-coredev@lists.launchpad.net>'
-    toaddr = '<ius-coredev@lists.launchpad.net>'
-    subject = '[ius-community] IUS Version Tracker'
+    print '\nsending email to', toaddr
 
     header = ("From: %s\r\nTo: %s\r\nSubject: %s\r\n"
                     % (fromaddr, toaddr, subject))

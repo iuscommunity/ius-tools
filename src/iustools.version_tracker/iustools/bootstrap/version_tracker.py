@@ -37,3 +37,8 @@ version_tracker.options.add_option('--launchpad', action='store_true', dest='lau
 version_tracker.config['email'] = None
 version_tracker.options.add_option('--email', action='store_true', dest='email',
     help='send output in email to configured recipients', default=None)
+
+# Configuration for --email Email notifications
+version_tracker.config['fromaddr'] = 'nobody@example.com'
+version_tracker.config['toaddr'] = 'nobody@example.com'
+version_tracker.config['subject'] = '[ius-community] IUS Version Tracker'
