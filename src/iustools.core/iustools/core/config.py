@@ -32,7 +32,6 @@ dcf['log_to_console'] = True
 dcf['output_handler'] = 'genshi'
 dcf['show_plugin_load'] = False
 dcf['mf_connection'] = 'default'
-dcf['mf_ignore_version_mismatch'] = False
 
 # By default look in /etc and ~/ for config files.  Developers for non *nix 
 # audiences will want to change this.
@@ -69,6 +68,5 @@ def get_nose_config(prefix=None):
     tcf['output_engine'] = 'genshi'
     tcf['show_plugin_load'] = False
     tcf['mf_connection'] = 'default'
-    tcf['mf_ignore_version_mismatch'] = False
     return tcf
     

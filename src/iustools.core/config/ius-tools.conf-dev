@@ -19,9 +19,6 @@ show_plugin_load = false
 # MonkeyFarm connection to use (pulls connection details from MF configs)
 mf_connection = default
 
-# Don't display MF version mismatch warning
-mf_ignore_version_mismatch = false
-
 
 ### LOGGING
 
