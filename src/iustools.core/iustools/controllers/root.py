@@ -12,17 +12,17 @@ import sys
 import json
 from urllib2 import urlopen, HTTPError
 from launchpadlib.launchpad import Launchpad
+from datetime import datetime, timedelta
+from operator import itemgetter
 
 from cement.core.namespace import get_config
 from cement.core.log import get_logger
 
 from iustools.core.exc import IUSToolsArgumentError
 from iustools.core.controller import IUSToolsController, expose
-
-from iustools.lib.lp import get_link, get_download, get_changelog
+from iustools.lib import launchpad as ius_lp
 from iustools.lib.testing_age import getrelease, getpackage
-from datetime import datetime, timedelta
-from operator import itemgetter
+from iustools.lib.bitly import shorten_url
 
 log = get_logger(__name__)
 config = get_config()
@@ -76,101 +76,44 @@ class RootController(IUSToolsController):
         raise IUSToolsArgumentError, "A command is required. See --help?"
     
     @expose(irc_command='.packagerepo')
-    def get_package_repo(self):
+    def package_repo(self):
         try:
-            package = self.cli_args[1]
+            out_txt = ius_lp.get_package_repo(self.cli_args[1])
+            print out_txt
+            return dict(irc_data=out_txt)
         except IndexError, e:
-            raise IUSToolsArgumentError, "expecting a second argument (package name)."
-            
-        lp = Launchpad.login_anonymously('ius-tools', 'production')
-        ius = lp.projects.search(text='ius')[0]
-
-        # Package Search
-        lp_pkg = lp.branches.getByUrl(url='lp:~ius-coredev/ius/%s' % package)
-
-        if lp_pkg:
-            out_txt = '%s' % lp_pkg.web_link
-        else:
-            raise IUSToolsArgumentError, '%s does not exist' % package
-
-        print out_txt
-        return dict(irc_data=out_txt)
+            raise IUSToolsArgumentError, "Package name required."
 
     @expose(irc_command='.bug')
-    def bug_info(self):
+    def bug(self):
         """ 
         Look up bug info, expects next argument to be an ID.
         """
-        lp = Launchpad.login_anonymously('ius-tools', 'production')
-    
         try:
-            bug_id = int(self.cli_args[1].lstrip('LP#').strip())
-        except ValueError, e:
-            raise IUSToolsArgumentError, e.args[0]
-            
-        log.debug('looking up bug #%s' % bug_id)
-        try:
-            bug = lp.bugs[int(bug_id)]
-        except KeyError, e:
-            raise IUSToolsArgumentError, \
-                'LaunchPad bug %s does not exist' % bug_id
+            out_txt = ius_lp.get_bug(self.cli_args[1])
+            print out_txt
+            return dict(irc_data=out_txt)
+        except IndexError, e:
+            raise IUSToolsArgumentError, "Bug number required."
         
-        bitly_url = "%s?format=json&longUrl=%s&login=%s&apiKey=%s" % (
-                    config['ircbot']['bitly_baseurl'],
-                    unicode(bug.web_link),
-                    config['ircbot']['bitly_user'],
-                    config['ircbot']['bitly_apikey'],
-                    )
-        bitly_url = re.sub('\+', '%2b', bitly_url)
-    
-        res = urlopen(bitly_url)
-        data = json.loads(res.read())
-        short_url = data['data']['url']
-    
-        out_txt = "LP#%s - %s - %s" % (bug_id, bug.title, short_url)
-        print out_txt
-        return dict(irc_data=out_txt)
-       
-    
     @expose()
     def spec(self):
-
-         # Check URL has data, if not Package does not exisit
         try:
-            url = get_link(self.cli_args[1])
-        except HTTPError as e:
-            print e
-            sys.exit(1)
-        except IndexError:
-            print 'Package Name must be given'
-            sys.exit(1)
-
-        # Load the entire file to the spec variable
-        spec = get_download(url)
-
-        # Print full SPEC
-        for line in spec:
-            print line,
-
+            out_txt = ius_lp.get_spec(self.cli_args[1])
+            print out_txt
+            return dict(spec=out_txt)
+        except IndexError, e:
+            raise IUSToolsArgumentError, "Package name required."
+        
     @expose()
     def changelog(self):
-
          # Check URL has data, if not Package does not exisit
         try:
-            url = get_link(self.cli_args[1])
-        except HTTPError as e:
-            print e
-            sys.exit(1)
-        except IndexError:
-            print 'Package Name must be given'
-            sys.exit(1)
-
-        # Load the entire file to the spec variable
-        spec = get_download(url)
-
-        # Print only top 5 lines of changelog 
-        get_changelog(spec) 
-
+            out_txt = ius_lp.get_changelog(self.cli_args[1])
+            print out_txt
+            return dict(changelog=out_txt)
+        except IndexError, e:
+            raise IUSToolsArgumentError, "Package name required."
 
     @expose()
     def testing_age(self):
