@@ -1,16 +1,25 @@
 
 from cement import namespaces
 from cement.core.controller import expose as cement_expose
+from cement.core.controller import CementController
 from cement.core.log import get_logger
 from cement.core.namespace import get_config
 from cement.core.view import render
 
 from iustools import irc_commands
 from iustools.core.exc import IUSToolsRuntimeError
+from iustools.core.connection import get_mf_connection
 
 log = get_logger(__name__)
 config = get_config()
 
+class IUSToolsController(CementController):
+    def __init__(self, cli_opts=None, cli_args=None):
+        CementController.__init__(self, cli_opts, cli_args)
+        self.cli_opts = cli_opts
+        self.cli_args = cli_args
+        self.mf = get_mf_connection(config['mf_connection'])
+        
 class expose(cement_expose):
     """
     Decorator function for plugins to expose commands.  This overrides

@@ -19,6 +19,8 @@ setup(name='iustools.core',
         # remove if not using genshi templating
         "genshi",
         "cement >=0.8.16, <0.9",
+        "monkeyfarm.core >=2.0.3",
+        "monkeyfarm.interface >=2.0.3",
         "launchpadlib",
         ],
     setup_requires=[

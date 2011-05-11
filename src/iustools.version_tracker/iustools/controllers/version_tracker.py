@@ -1,9 +1,9 @@
 """version_tracker controller class to expose commands for iustools."""
 
-from cement.core.controller import CementController, expose
 from cement.core.namespace import get_config
 
 from iustools.core.exc import IUSToolsArgumentError
+from iustools.core.controller import IUSToolsController, expose
 from iustools.helpers.compare import vcompare
 from iustools.lib.version_tracker import get_upstream_version, get_ius_version
 from iustools.lib.version_tracker import get_packages
@@ -28,7 +28,7 @@ config = get_config()
 TAGS = ['testing', 'stable']
 RELEASES = ['4', '5']
 
-class VersionTrackerController(CementController):
+class VersionTrackerController(IUSToolsController):
 
     @expose(namespace='version_tracker')
     def default(self):

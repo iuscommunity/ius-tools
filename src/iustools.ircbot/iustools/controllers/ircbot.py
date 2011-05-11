@@ -8,12 +8,11 @@ from time import sleep
 from multiprocessing import Process
 
 from cement import hooks, namespaces
-from cement.core.controller import CementController
 from cement.core.namespace import get_config
 from cement.core.log import get_logger
 
 from iustools import irc_commands
-from iustools.core.controller import expose
+from iustools.core.controller import IUSToolsController, expose
 from iustools.lib.ircbot import IRC
 from iustools.lib.daemonize import daemonize
 
@@ -32,7 +31,7 @@ signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGINT, signal_handler)
 
 
-class IRCBotController(CementController):
+class IRCBotController(IUSToolsController):
     @expose(namespace='ircbot', is_hidden=False)
     def default(self):
         u = pwd.getpwnam(config['ircbot']['process_user'])

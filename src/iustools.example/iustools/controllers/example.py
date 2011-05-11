@@ -1,10 +1,9 @@
 """example controller class to expose commands for iustools."""
 
-from cement.core.controller import CementController, expose
-
+from iustools.core.controller import IUSToolsController, expose
 from iustools.model.example import ExampleModel
 
-class ExampleController(CementController):
+class ExampleController(IUSToolsController):
     @expose()              
     def example_command(self):
         """Register root command that doesn't use a template."""

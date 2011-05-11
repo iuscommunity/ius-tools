@@ -13,12 +13,11 @@ import json
 from urllib2 import urlopen, HTTPError
 from launchpadlib.launchpad import Launchpad
 
-from cement.core.controller import CementController
 from cement.core.namespace import get_config
 from cement.core.log import get_logger
 
 from iustools.core.exc import IUSToolsArgumentError
-from iustools.core.controller import expose
+from iustools.core.controller import IUSToolsController, expose
 
 from iustools.lib.lp import get_link, get_download, get_changelog
 from iustools.lib.testing_age import getrelease, getpackage
@@ -28,7 +27,7 @@ from operator import itemgetter
 log = get_logger(__name__)
 config = get_config()
 
-class RootController(CementController):
+class RootController(IUSToolsController):
     @expose('iustools.templates.root.error', is_hidden=True)
     def error(self, errors=[]):
         """

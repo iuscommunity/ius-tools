@@ -14,6 +14,8 @@ from cement.core.log import get_logger
 from cement.core.app_setup import lay_cement
 from cement.core.command import run_command
 
+from mf.core.exc import MFConfigError
+
 from iustools.core.config import default_config
 from iustools.core.exc import IUSToolsArgumentError, IUSToolsConfigError
 from iustools.core.exc import IUSToolsRuntimeError
@@ -39,6 +41,9 @@ def main(args=None):
         
         run_command(args[1])
             
+    except MFConfigError, e:
+        print("MFConfigError > %s" % e)
+        sys.exit(e.code)
     except CementArgumentError, e:
         # Display the apps exception names instead for the Cement exceptions.
         print("IUSToolsArgumentError > %s" % e)
