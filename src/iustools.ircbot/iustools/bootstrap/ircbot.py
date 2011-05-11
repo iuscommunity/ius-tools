@@ -24,6 +24,7 @@ from cement.core.hook import define_hook, register_hook, run_hooks
 
 from iustools import irc_commands
 from iustools.core.exc import IUSToolsArgumentError
+from iustools.lib.bitly import shorten_url
 
 VERSION = get_distribution('iustools.ircbot').version
 
@@ -48,9 +49,6 @@ ircbot.config['ping_cycle'] = 60
 ircbot.config['recv_bytes'] = 2048 
 ircbot.config['process_user'] = 'iusdaemon'
 ircbot.config['pid_file'] = '/var/run/ius-tools/ircbot.pid'
-ircbot.config['bitly_baseurl'] = 'http://api.bit.ly/v3/shorten/'
-ircbot.config['bitly_user'] = 'iuscommunity'
-ircbot.config['bitly_apikey'] = None
 
 # command line options
 ircbot.options.add_option('--irc-channel', action='store', dest='channel',
@@ -109,21 +107,13 @@ def new_bug_notify_ircbot_process_hook(config, log, irc):
         ius = lp.projects.search(text='ius')[0]
         tasks = ius.searchTasks()
         for task in tasks:
-            if last_update < task.date_created.replace(tzinfo=None):
-                bitly_url = "%s?format=json&longUrl=%s&login=%s&apiKey=%s" % (
-                        config['ircbot']['bitly_baseurl'],
-                        unicode(task.web_link),
-                        config['ircbot']['bitly_user'],
-                        config['ircbot']['bitly_apikey'],
-                        )
-                bitly_url = re.sub('\+', '%2b', bitly_url)
-                
-                res = urlopen(bitly_url)
-                data = json.loads(res.read())
-                short_url = data['data']['url']
-                
-                reply = "New %s - %s" % (task.title, short_url)
-                irc.send_to_channel(reply)
+            if not last_update < task.date_created.replace(tzinfo=None):
+                # go to next task
+                continue
+            
+            url = shorten_url(unicode(task.web_link))    
+            reply = "New %s - %s" % (task.title, url)
+            irc.send_to_channel(reply)
 
         last_update = datetime.utcnow()
         sleep(300)
@@ -220,20 +210,9 @@ def lookup_bug_info_ircbot_parsemsg_hook(config, log, irc, poll_result):
             reply = "I tried to lookup LP#%s, but it doesn't exist." % _id
             irc.send_to_channel(reply)
             continue
-            
-        bitly_url = "%s?format=json&longUrl=%s&login=%s&apiKey=%s" % (
-                    config['ircbot']['bitly_baseurl'],
-                    unicode(bug.web_link),
-                    config['ircbot']['bitly_user'],
-                    config['ircbot']['bitly_apikey'],
-                    )
-        bitly_url = re.sub('\+', '%2b', bitly_url)
         
-        res = urlopen(bitly_url)
-        data = json.loads(res.read())
-        short_url = data['data']['url']
-        
-        reply = "LP#%s - %s - %s" % (_id, bug.title, short_url)
+        url = shorten_url(unicode(bug.web_link))
+        reply = "LP#%s - %s - %s" % (_id, bug.title, url)
         irc.send_to_channel(reply)
         
         

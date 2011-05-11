@@ -42,6 +42,15 @@ log_to_console = true
 #log_max_files = 4
 
 
+### URL SHORTENING
+
+# Enable use of bit.ly shortening service
+bitly_enabled = false
+bitly_baseurl = http://api.bit.ly/v3/shorten/
+bitly_username = iuscommunity
+bitly_apikey = XXXXX
+
+
 #### PLUGINS
 
 #
