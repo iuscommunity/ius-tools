@@ -1,7 +1,7 @@
 # This configuration is specifically meant to be used for testing
 [root]
 
-mf_connection = rackspace
+mf_connection = ius-tools-test
 
 # This is how you'd enable a plugin for testing
 [example]
