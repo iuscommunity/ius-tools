@@ -107,13 +107,10 @@ def new_bug_notify_ircbot_process_hook(config, log, irc):
         ius = lp.projects.search(text='ius')[0]
         tasks = ius.searchTasks()
         for task in tasks:
-            if not last_update < task.date_created.replace(tzinfo=None):
-                # go to next task
-                continue
-            
-            url = shorten_url(unicode(task.web_link))    
-            reply = "New %s - %s" % (task.title, url)
-            irc.send_to_channel(reply)
+            if last_update < task.date_created.replace(tzinfo=None):
+                url = shorten_url(unicode(task.web_link))    
+                reply = "New %s - %s" % (task.title, url)
+                irc.send_to_channel(reply)
 
         last_update = datetime.utcnow()
         sleep(300)
