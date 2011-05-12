@@ -45,6 +45,13 @@ def test_spec():
     res = 'ius-release' in res_dict['spec']
     ok_(res)
             
+@with_setup(setup_func, teardown_func)
+def test_testing_age():  
+    (res_dict, output_txt) = simulate([__file__, 'testing-age'])
+
+    res = len(res_dict['packages']) > 0
+    ok_(res)
+
 @raises(IUSToolsArgumentError)
 @with_setup(setup_func, teardown_func)
 def test_default_cmd():

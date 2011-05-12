@@ -119,6 +119,8 @@ class RootController(IUSToolsController):
     def testing_age(self):
         # Get our dictionary
         rpms = {}
+        res_dict = {}
+        res_dict['packages'] = []
         
         # Define our Month dictionary
         months = {}
@@ -155,3 +157,6 @@ class RootController(IUSToolsController):
         print '-'*45
         for package in sorted(rpms):
             print '%-10s %s' % (rpms[package], package)
+            res_dict['packages'].append( (rpms[package], package) )
+
+        return res_dict
