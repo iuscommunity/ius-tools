@@ -24,6 +24,11 @@ def test_package_repo():
     (res_dict, output_txt) = simulate([__file__, 'package-repo', 'php52'])
     eq_(res_dict['irc_data'], 
         'https://code.launchpad.net/~ius-coredev/ius/php52')
+
+@raises(IUSToolsArgumentError)
+@with_setup(setup_func, teardown_func)
+def test_package_repo_index_error():  
+    (res_dict, output_txt) = simulate([__file__, 'package-repo'])
     
 @with_setup(setup_func, teardown_func)
 def test_bug():  
