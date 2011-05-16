@@ -25,11 +25,30 @@ def test_package_repo():
     eq_(res_dict['irc_data'], 
         'https://code.launchpad.net/~ius-coredev/ius/php52')
 
+@with_setup(setup_func, teardown_func)
+def test_error():  
+    (res_dict, output_txt) = simulate([__file__, 'error'])
+
 @raises(IUSToolsArgumentError)
 @with_setup(setup_func, teardown_func)
 def test_package_repo_index_error():  
     (res_dict, output_txt) = simulate([__file__, 'package-repo'])
+
+@raises(IUSToolsArgumentError)
+@with_setup(setup_func, teardown_func)
+def test_bug_index_error():  
+    (res_dict, output_txt) = simulate([__file__, 'bug'])
+
+@raises(IUSToolsArgumentError)
+@with_setup(setup_func, teardown_func)
+def test_spec_index_error():  
+    (res_dict, output_txt) = simulate([__file__, 'spec'])
     
+@raises(IUSToolsArgumentError)
+@with_setup(setup_func, teardown_func)
+def test_changelog_index_error():  
+    (res_dict, output_txt) = simulate([__file__, 'changelog'])
+
 @with_setup(setup_func, teardown_func)
 def test_bug():  
     (res_dict, output_txt) = simulate([__file__, 'bug', '731697'])
