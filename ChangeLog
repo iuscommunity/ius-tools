@@ -17,3 +17,5 @@ BUG FIXES:
    channel.
  - Resolved GH#1 ircbot fails to reconnect (unhandled socket.error 
    exception).  Also added a lot of error handling in lib/ircbot.py. 
+ - Resolved GH#6: IRCBot logs socket.error: [Errno 32] Broken pipe far too 
+   often
