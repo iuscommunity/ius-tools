@@ -118,7 +118,7 @@ class IRC(object):
             try:
                 # retry
                 self.connect()
-                self.ircsock.send("PPING\n")
+                self.ircsock.send("PING\n")
             except:
                 pass
 
