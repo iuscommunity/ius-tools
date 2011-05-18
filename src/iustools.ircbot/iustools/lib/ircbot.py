@@ -60,7 +60,7 @@ class IRC(object):
         res = None
         
         if re.search("PING :", data):
-            self.ping()
+            self.pong()
             res = None
             
         elif re.search("PRIVMSG", data):
@@ -110,7 +110,20 @@ class IRC(object):
 
             
     def ping(self):
-        log.debug('sending ping')
+        log.debug('sending keep alive ping to server')
+        try:
+            self.ircsock.send("PING\n")
+        except socket.error, e:
+            log.error("Caught socket.error: %s" % e)
+            try:
+                # retry
+                self.connect()
+                self.ircsock.send("PING\n")
+            except:
+                pass
+
+    def pong(self):
+        log.debug('sending pong response')
         try:
             self.ircsock.send("PONG :pingis\n")
         except socket.error, e:
@@ -121,7 +134,7 @@ class IRC(object):
                 self.ircsock.send("PONG :pingis\n")
             except:
                 pass
-
+                
     def send(self, nick_or_channel, msg):
         log.debug('sending msg to %s' % nick_or_channel)
         try:
