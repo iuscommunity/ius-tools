@@ -12,7 +12,6 @@ from urllib2 import urlopen, HTTPError, URLError
 
 from time import sleep
 from pkg_resources import get_distribution
-from datetime import datetime
 from launchpadlib.launchpad import Launchpad
 
 from cement import namespaces
@@ -98,21 +97,31 @@ def new_bug_notify_ircbot_process_hook(config, log, irc):
     """
     Monitor LaunchPad for new bugs, and post to irc.
     """
-    last_update = datetime.utcnow()
+
+    lp_ids = []
+    runcount = 0
+
     while True:
         log.debug('checking LaunchPad for new bugs')
-        now = datetime.utcnow()
         
         lp = Launchpad.login_anonymously('ius-tools', 'production')
         ius = lp.projects.search(text='ius')[0]
         tasks = ius.searchTasks()
+
         for task in tasks:
-            if last_update < task.date_created.replace(tzinfo=None):
+            bugid = task.bug.id
+            # if not first run let do some work
+            if runcount < 0 and bugid not in lp_ids:
                 url = shorten_url(unicode(task.web_link))    
                 reply = "New %s - %s" % (task.title, url)
                 irc.send_to_channel(reply)
+                lp_ids.append(bugid)
 
-        last_update = datetime.utcnow()
+            # if first run add all bugs to list
+            if runcount == 0:
+                lp_ids.append(bugid)
+
+        runcount += 1
         sleep(300)
     
 @register_hook(name='ircbot_parsemsg_hook')
