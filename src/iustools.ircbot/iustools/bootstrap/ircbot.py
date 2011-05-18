@@ -111,7 +111,7 @@ def new_bug_notify_ircbot_process_hook(config, log, irc):
         for task in tasks:
             bugid = task.bug.id
             # if not first run let do some work
-            if runcount < 0 and bugid not in lp_ids:
+            if runcount > 0 and bugid not in lp_ids:
                 url = shorten_url(unicode(task.web_link))    
                 reply = "New %s - %s" % (task.title, url)
                 irc.send_to_channel(reply)
