@@ -15,7 +15,7 @@ BUG FIXES:
  - Added new hook keepalive_process_hook to send regular ping responses to 
    the server.  Keeps bot from being disconnected when no activity is in the
    channel.
- - Resolved GH#1 ircbot fails to reconnect (unhandled socket.error 
+ - Resolved Issue #1 ircbot fails to reconnect (unhandled socket.error 
    exception).  Also added a lot of error handling in lib/ircbot.py. 
- - Resolved GH#6: IRCBot logs socket.error: [Errno 32] Broken pipe far too 
+ - Resolved Issue #6: IRCBot logs socket.error: [Errno 32] Broken pipe far too 
    often
