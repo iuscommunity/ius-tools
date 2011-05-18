@@ -99,7 +99,7 @@ def new_bug_notify_ircbot_process_hook(config, log, irc):
     """
 
     lp_ids = []
-    runcount = 0
+    first_run = True
 
     while True:
         log.debug('checking LaunchPad for new bugs')
@@ -110,18 +110,22 @@ def new_bug_notify_ircbot_process_hook(config, log, irc):
 
         for task in tasks:
             bugid = task.bug.id
-            # if not first run let do some work
-            if runcount > 0 and bugid not in lp_ids:
+            
+            if first_run and bugid not in lp_ids:
+                # just append all ids to the list
+                log.debug('Adding %s to known ids' % bugid)
+                lp_ids.append(bugid)
+
+            elif not first_run and bugid not in lp_ids:
+                # if not first run post to channel
                 url = shorten_url(unicode(task.web_link))    
                 reply = "New %s - %s" % (task.title, url)
                 irc.send_to_channel(reply)
+                
+                log.debug('Adding %s to known ids' % bugid)
                 lp_ids.append(bugid)
 
-            # if first run add all bugs to list
-            if runcount == 0:
-                lp_ids.append(bugid)
-
-        runcount += 1
+        first_run = False
         sleep(300)
     
 @register_hook(name='ircbot_parsemsg_hook')
