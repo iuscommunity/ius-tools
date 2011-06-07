@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='iustools.version_tracker',
-    version='0.1',
+    version='0.1.2',
     description='Version Tracker plugin for Iustools',
     classifiers=[], 
     keywords='',
