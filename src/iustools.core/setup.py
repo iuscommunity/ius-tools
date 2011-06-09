@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='iustools.core',
-    version='0.1.2',
+    version='0.1.3',
     description='Scripts and Utilities for The IUS Community Project',
     classifiers=[], 
     keywords='',
@@ -21,7 +21,6 @@ setup(name='iustools.core',
         "cement >=0.8.16, <0.9",
         "monkeyfarm.core >=2.0.3",
         "monkeyfarm.interface >=2.0.3",
-        "launchpadlib",
         ],
     setup_requires=[
         # uncomment for nose testing

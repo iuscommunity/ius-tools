@@ -2,9 +2,10 @@
 from setuptools import setup, find_packages
 import sys, os
 
-setup(name='iustools.version_tracker',
+# You probably want to change the name, this is a healthy default for paster
+setup(name='iustools.launchpad',
     version='0.1.3',
-    description='Version Tracker plugin for Iustools',
+    description='LaunchPad Plugin for IUS Tools',
     classifiers=[], 
     keywords='',
     author='IUS CoreDev Team',
@@ -18,6 +19,7 @@ setup(name='iustools.version_tracker',
         "genshi",
         "cement >=0.8.16, <0.9",
         "iustools.core==0.1.3",
+        "launchpadlib",
         ],
     setup_requires=[
         ],

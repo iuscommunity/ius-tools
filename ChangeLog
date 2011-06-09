@@ -1,4 +1,12 @@
 
+0.1.3 - development (will be released as 0.1.4) 
+------------------------------------------------------------------------------
+
+Misc Changes:
+
+ + Resolve Issue #9 - Break out Launchpad functionality to its own plugin. 
+
+
 0.1.2 - Jun 07, 2011 
 ------------------------------------------------------------------------------
 

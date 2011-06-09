@@ -11,7 +11,6 @@ import os
 import sys
 import json
 from urllib2 import urlopen, HTTPError
-from launchpadlib.launchpad import Launchpad
 from datetime import datetime, timedelta
 from operator import itemgetter
 
@@ -20,7 +19,6 @@ from cement.core.log import get_logger
 
 from iustools.core.exc import IUSToolsArgumentError
 from iustools.core.controller import IUSToolsController, expose
-from iustools.lib import launchpad as ius_lp
 from iustools.lib.testing_age import getrelease, getpackage
 from iustools.lib.bitly import shorten_url
 
@@ -74,46 +72,6 @@ class RootController(IUSToolsController):
         
         """
         raise IUSToolsArgumentError, "A command is required. See --help?"
-    
-    @expose(irc_command='.packagerepo')
-    def package_repo(self):
-        try:
-            out_txt = ius_lp.get_package_repo(self.cli_args[1])
-            print out_txt
-            return dict(irc_data=out_txt)
-        except IndexError, e:
-            raise IUSToolsArgumentError, "Package name required."
-
-    @expose(irc_command='.bug')
-    def bug(self):
-        """ 
-        Look up bug info, expects next argument to be an ID.
-        """
-        try:
-            out_txt = ius_lp.get_bug(self.cli_args[1])
-            print out_txt
-            return dict(irc_data=out_txt)
-        except IndexError, e:
-            raise IUSToolsArgumentError, "Bug number required."
-        
-    @expose()
-    def spec(self):
-        try:
-            out_txt = ius_lp.get_spec(self.cli_args[1])
-            print out_txt
-            return dict(spec=out_txt)
-        except IndexError, e:
-            raise IUSToolsArgumentError, "Package name required."
-        
-    @expose()
-    def changelog(self):
-         # Check URL has data, if not Package does not exisit
-        try:
-            out_txt = ius_lp.get_changelog(self.cli_args[1])
-            print out_txt
-            return dict(changelog=out_txt)
-        except IndexError, e:
-            raise IUSToolsArgumentError, "Package name required."
 
     @expose()
     def testing_age(self):

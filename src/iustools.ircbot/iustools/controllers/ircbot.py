@@ -67,13 +67,14 @@ class IRCBotController(IUSToolsController):
 
                 log.debug("spawned ircbot process '%s' (pid: %s)" % \
                         (hook[1], p.pid))
-                        
-                child_processes[hook[1]] = dict(func=hook[2], process=p)
+                
+                proc = dict(func=hook[2], process=p)        
+                child_processes[hook[1]] = proc
                 
         while True:
             for c in child_processes:
                 if not child_processes[c]['process'].is_alive():
-                    process = child_processes[c]['process']
+                    process = child_processes[c]['process']                        
                     log.error("ircbot child process %s died" % process.pid)
                     process = Process(target=child_processes[c]['func'], 
                                       args=[config, log, irc])
@@ -93,16 +94,16 @@ class IRCBotController(IUSToolsController):
         irc_data = "Available Commands: %s" % ' '.join(irc_commands.keys())
         return dict(irc_pm=True, irc_data=irc_data)
         
-    @expose(namespace='root', irc_command='.whoowns')
-    def whoowns(self):
-        try:
-            pkg = self.cli_args[1]
-            out_txt = "derks owns %s" % pkg
-        except IndexError, e:
-            out_txt = "first argument should be a package name."
-        
-        print out_txt
-        return dict(irc_data=out_txt)
+    #@expose(namespace='root', irc_command='.whoowns')
+    #def whoowns(self):
+    #    try:
+    #        pkg = self.cli_args[1]
+    #        out_txt = "derks owns %s" % pkg
+    #    except IndexError, e:
+    #        out_txt = "first argument should be a package name."
+    #    
+    #    print out_txt
+    #    return dict(irc_data=out_txt)
     
     @expose(namespace='ircbot', irc_command='.ping')
     def ping(self):

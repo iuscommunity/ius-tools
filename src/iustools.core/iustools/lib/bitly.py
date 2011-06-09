@@ -27,6 +27,11 @@ def shorten_url(long_url):
         )
     bitly_url = re.sub('\+', '%2b', bitly_url)
     res = urlopen(bitly_url)
-    data = json.loads(res.read())
-    url = data['data']['url']
-    return url
+
+    try:
+        data = json.loads(res.read())
+        url = data['data']['url']
+        return url
+    except TypeError, e:
+        log.warn("Unable shorten URL with bit.ly - possibly an invalid config.")
+        return long_url

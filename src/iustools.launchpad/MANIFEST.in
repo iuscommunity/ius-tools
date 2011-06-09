@@ -1,0 +1,2 @@
+recursive-include iustools/templates/launchpad *
+recursive-include tests *
