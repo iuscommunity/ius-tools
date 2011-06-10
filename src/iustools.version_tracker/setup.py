@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='iustools.version_tracker',
-    version='0.1.3',
+    version='0.1.4',
     description='Version Tracker plugin for Iustools',
     classifiers=[], 
     keywords='',
@@ -17,7 +17,7 @@ setup(name='iustools.version_tracker',
     install_requires=[
         "genshi",
         "cement >=0.8.16, <0.9",
-        "iustools.core==0.1.3",
+        "iustools.core==0.1.4",
         ],
     setup_requires=[
         ],
