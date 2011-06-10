@@ -20,7 +20,7 @@ from cement.core.testing import simulate
 from cement.core.controller import run_controller_command
 from cement.core.hook import define_hook, register_hook, run_hooks
 
-from iustools import irc_commands
+from iustools.core import irc_commands
 from iustools.core.exc import IUSToolsArgumentError
 from iustools.lib.bitly import shorten_url
 

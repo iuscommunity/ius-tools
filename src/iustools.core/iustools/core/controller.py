@@ -6,7 +6,7 @@ from cement.core.log import get_logger
 from cement.core.namespace import get_config
 from cement.core.view import render
 
-from iustools import irc_commands
+from iustools.core import irc_commands
 from iustools.core.exc import IUSToolsRuntimeError
 from iustools.core.connection import get_mf_connection
 

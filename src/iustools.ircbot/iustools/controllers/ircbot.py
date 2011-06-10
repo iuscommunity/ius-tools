@@ -11,7 +11,7 @@ from cement import hooks, namespaces
 from cement.core.namespace import get_config
 from cement.core.log import get_logger
 
-from iustools import irc_commands
+from iustools.core import irc_commands
 from iustools.core.controller import IUSToolsController, expose
 from iustools.lib.ircbot import IRC
 from iustools.lib.daemonize import daemonize
