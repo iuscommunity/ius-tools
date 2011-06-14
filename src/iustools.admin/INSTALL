@@ -1,0 +1,15 @@
+
+SOURCE INSTALLATION:
+
+    $ sudo python setup.py install
+
+    # The following is one command
+    $ sudo cp -a ./etc/iustools/plugins.d/admin.conf \
+                 /etc/iustools/plugins.d/
+    
+    
+USAGE:
+
+    $ iustools --help
+    
+    $ iustools admin --help
