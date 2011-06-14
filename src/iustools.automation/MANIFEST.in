@@ -1,2 +1,0 @@
-recursive-include iustools/templates/automation *
-recursive-include tests *
