@@ -4,7 +4,7 @@ import sys, os
 
 # You probably want to change the name, this is a healthy default for paster
 setup(name='iustools.ircbot',
-    version='0.1.4',
+    version='0.1.5',
     description='IRC Bot Plugin for IUS Community Project Tools',
     classifiers=[], 
     keywords='',
@@ -18,7 +18,7 @@ setup(name='iustools.ircbot',
     install_requires=[
         "genshi",
         "cement >=0.8.16, <0.9",
-        "iustools.core==0.1.4",
+        "iustools.core==0.1.5",
         ],
     setup_requires=[
         ],

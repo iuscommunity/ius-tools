@@ -3,9 +3,9 @@ from setuptools import setup, find_packages
 import sys, os
 
 # You probably want to change the name, this is a healthy default for paster
-setup(name='iustools.example',
+setup(name='iustools.automation',
     version='0.1.5',
-    description='Example plugin for IUS Community Project Tools',
+    description='Automation Plugin for IUS Community Project Tools',
     classifiers=[], 
     keywords='',
     author='IUS CoreDev Team',
