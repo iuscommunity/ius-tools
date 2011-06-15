@@ -1,13 +1,15 @@
 
+import sys
+from urllib2 import HTTPError
+
 from cement import namespaces
 from cement.core.controller import expose as cement_expose
-from cement.core.controller import CementController
+from cement.core.controller import CementController, run_controller_command
 from cement.core.log import get_logger
 from cement.core.namespace import get_config
 from cement.core.view import render
 
-from iustools.core import irc_commands
-from iustools.core.exc import IUSToolsRuntimeError
+from iustools.core import irc_commands, exc
 from iustools.core.connection import get_mf_connection
 
 log = get_logger(__name__)
@@ -19,7 +21,30 @@ class IUSToolsController(CementController):
         self.cli_opts = cli_opts
         self.cli_args = cli_args
         self.mf = get_mf_connection(config['mf_connection'])
-        
+    
+    def _wrap(self, func, *args, **kw):
+        try:
+            res = func(*args, **kw)
+            self._abort_on_api_error(res['errors'])
+            return res
+        except HTTPError, e:
+            raise exc.IUSToolsRuntimeError, \
+                "An HTTPError was received: '%s %s'." % \
+                (e.code, e.msg)
+
+    def _abort_on_api_error(self, errors={}):
+        config = get_config()
+        if len(errors) > 0:
+            if config['output_handler'] == 'json':
+                run_controller_command('root', 'api_error_json',
+                                       errors=errors, cli_opts=self.cli_opts,
+                                       cli_args=self.cli_args)
+            else:
+                run_controller_command('root', 'api_error', errors=errors,
+                                       cli_opts=self.cli_opts,
+                                       cli_args=self.cli_args)
+            sys.exit(1)
+              
 class expose(cement_expose):
     """
     Decorator function for plugins to expose commands.  This overrides
@@ -67,7 +92,7 @@ class expose(cement_expose):
         self.irc_command = kwargs.get('irc_command', None)
         
         if not self.namespace in namespaces:
-            raise CementRuntimeError, \
+            raise exc.IUSToolsRuntimeError, \
                 "The namespace '%s' is not defined!" % self.namespace
         
         # First set output_handler from config
@@ -88,7 +113,8 @@ class expose(cement_expose):
             elif len(parts) == 1:
                 self.template = parts[0]
             else:
-                raise CementRuntimeError, "Invalid handler:template identifier."
+                raise exc.IUSToolsRuntimeError, \
+                    "Invalid handler:template identifier."
                         
     def __get__(self, obj, type=None):
         if self.func:

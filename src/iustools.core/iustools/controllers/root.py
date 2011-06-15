@@ -26,6 +26,38 @@ log = get_logger(__name__)
 config = get_config()
 
 class RootController(IUSToolsController):
+    @expose('mf.templates.root.api_error', is_hidden=True)
+    def api_error(self, errors=[]):
+        """
+        This method is intended specifically for displaying the errors dict
+        as returned by MF Hub.
+
+        Required Arguments:
+
+            errors
+                A dictionary in the form of {'ErrorCode': 'Error message'}.
+
+
+        The best way to use this is with the '_abort_on_api_error' function of
+        MFController.
+
+        .. code-block:: python
+
+            from mf.core.controller import MFController
+
+            class DistroController(MFController):
+                @expose(namespace='distro')
+                def create(self, *args, **kw):
+                    res = self.hub.distro.create(dict(label='test', display_name='Test Distro'))
+                    self._abort_on_api_error(res['errors'])
+
+                    # continue work (no errors)
+
+        """
+        if config.has_key('nosetests') and config['nosetests']:
+            print errors
+        return dict(errors=errors)
+        
     @expose('iustools.templates.root.error', is_hidden=True)
     def error(self, errors=[]):
         """
