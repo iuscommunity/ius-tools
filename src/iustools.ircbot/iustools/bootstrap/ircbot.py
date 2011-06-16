@@ -102,7 +102,7 @@ def exec_commands_ircbot_parsemsg_hook(config, log, irc, poll_result):
     (from_nick, from_chan, msg, dest) = poll_result
     
     # its a command, 
-    if not msg.startswith('.'):
+    if not re.match('^\.[A-z]', msg):
         log.debug('msg did not start with a .command... skipping')
         return
     
