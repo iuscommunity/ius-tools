@@ -23,8 +23,11 @@ admin = CementNamespace(
 # default setting for the config option.  Overridden by config files, and then
 # cli options.
 admin.config['managed_tags'] = ['testing', 'stable', 'dev']
+admin.config['managed_releases'] = ['el4', 'el5', 'el6']
+admin.config['managed_archs'] = ['i386', 'x86_64']
 admin.config['repo_base_path'] = '~/ius-repo'
 admin.config['remote_rsync_path'] = '~/ius-repo'
+admin.config['gpg_passphrase'] = ''
 
 
 # Add a cli option to the admin namespace.  This overrides the 
@@ -37,6 +40,8 @@ admin.options.add_option('--clean', action='store_true', dest='clean',
     help='clean destination repo before creation (used with gen-repo)')
 admin.options.add_option('--delete', action='store_true', dest='delete',
     help='delete old files from remote destination')
+admin.options.add_option('--passphrase', action='store_true', 
+    dest='gpg_passphrase', help='gpg key passphrase')
     
 # Officialize and register the namespace
 register_namespace(admin)

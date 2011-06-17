@@ -36,6 +36,7 @@ dcf['bitly_enabled'] = False
 dcf['bitly_baseurl'] = 'http://api.bit.ly/v3/shorten/'
 dcf['bitly_user'] = 'iuscommunity'
 dcf['bitly_apikey'] = None
+dcf['rpm_binpath'] = '/bin/rpm'
 
 # By default look in /etc and ~/ for config files.  Developers for non *nix 
 # audiences will want to change this.
@@ -76,5 +77,6 @@ def get_nose_config(prefix=None):
     tcf['bitly_baseurl'] = 'http://api.bit.ly/v3/shorten/'
     tcf['bitly_user'] = 'iuscommunity'
     tcf['bitly_apikey'] = None
+    tcf['rpm_binpath'] = '/usr/bin/rpm'
     return tcf
     

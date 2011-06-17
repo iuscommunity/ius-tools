@@ -19,6 +19,7 @@ setup(name='iustools.admin',
         "genshi",
         "cement >=0.8.16, <0.9",
         "iustools.core==0.1.5",
+        "pexpect",
         ],
     setup_requires=[
         ],

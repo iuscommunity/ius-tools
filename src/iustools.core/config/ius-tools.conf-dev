@@ -51,6 +51,10 @@ bitly_username = iuscommunity
 bitly_apikey = XXXXX
 
 
+### BINARY PATHS
+rpm_binpath = /bin/rpm
+
+
 #### PLUGINS
 
 #

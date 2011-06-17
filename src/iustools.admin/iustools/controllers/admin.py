@@ -4,12 +4,15 @@ import re
 import os
 import hashlib
 import shutil
+import sys
+import pexpect
 from datetime import datetime
 from urllib import urlopen
 from cement.core.log import get_logger
 from cement.core.namespace import get_config
 
 from iustools.core.controller import IUSToolsController, expose
+from iustools.helpers.misc import exec_command
 from iustools.core import exc
 
 log = get_logger(__name__)
@@ -25,7 +28,9 @@ class AdminController(IUSToolsController):
         
     def _get_tasks(self, tag_label):
         tasks = []
-
+        dest_base = os.path.join(config['admin']['repo_base_path'], 'ius')
+        dest_base = os.path.abspath(dest_base)
+        
         res = self._wrap(self.mf.tag.get_one, tag_label, 'ius')
                
         tag = res['data']['tag']
@@ -44,7 +49,7 @@ class AdminController(IUSToolsController):
                     task[key] = res['data'][key]
                 
                 task['repo_path'] = os.path.join(
-                    config['admin']['repo_base_path'],
+                    dest_base,
                     tag_label,
                     task['target']['tag_path']
                     )
@@ -53,25 +58,86 @@ class AdminController(IUSToolsController):
                 
     @expose(namespace='admin')              
     def gen_repo(self):
+        if self.cli_opts.sign and not self.cli_opts.gpg_passphrase:
+            try:
+                os.system('stty -echo')
+                res = raw_input('GPG Key Passphrase: ')
+            except Exception:
+                print
+                sys.exit(1)
+            finally:
+                print
+                os.system('stty echo')
+                
+            self.cli_opts.gpg_passphrase = res.strip('\n')
+            
         repo_paths = []
         orig_dir = os.curdir
-
-        if self.cli_opts.clean:
-            if os.path.exists(config['admin']['repo_base_path']):
-                log.debug('Removing existing repo %s' % \
-                    config['admin']['repo_base_path'])
-                shutil.rmtree(config['admin']['repo_base_path'])
-
-
-        log.info('Generating ius repository in %s' %
-                 config['admin']['repo_base_path'])
+        orig_dir = os.curdir
+         
         if self.cli_opts.tag_label:
-            tags = self.cli_opts.tag_label.split(',')
-        else:
-            tags = config['admin']['managed_tags']
+            config['admin']['managed_tags'] = self.cli_opts.tag_label\
+                                              .split(',')
+            
+        dest_base = os.path.join(config['admin']['repo_base_path'], 'ius')
+        dest_base = os.path.abspath(dest_base)
 
-        for tag_label in tags:
-            log.info("Processing tag %s" % tag_label)
+        log.info('Destination: %s' % dest_base)
+        
+        if self.cli_opts.clean:
+            if os.path.exists(dest_base):
+                log.info('Removing existing data')
+                shutil.rmtree(dest_base)
+
+        # first generate initial repos... cause, if say there are no
+        # builds in 'testing' then the repos would get created and we always
+        # want them there even if empty.
+        for rel_label in config['admin']['managed_releases']:
+            res = self._wrap(self.mf.release.get_one, rel_label)
+            
+            for target_label in res['data']['release']['targets']:
+                res2 = self._wrap(self.mf.target.get_one, target_label)
+
+                # first the source dirs
+                for tag_label in config['admin']['managed_tags']:
+                    dest = os.path.join(
+                        dest_base,
+                        tag_label,
+                        res2['data']['target']['distro_label'],
+                        str(res2['data']['target']['full_version']),
+                        'source',
+                        )
+                    dest = os.path.abspath(dest)
+                    if dest not in repo_paths:
+                        repo_paths.append(dest)
+                    if not os.path.exists(dest):
+                        os.makedirs(dest)
+                        
+                arch_label = res2['data']['target']['arch_label']
+                if arch_label not in config['admin']['managed_archs']:
+                    continue
+                    
+                for tag_label in config['admin']['managed_tags']:
+                    dest = os.path.abspath(dest)
+                    if dest not in repo_paths:
+                        repo_paths.append(dest)
+                    if not os.path.exists(dest):
+                        os.makedirs(dest)
+                        
+                    dest = os.path.join(
+                        dest_base,
+                        tag_label,
+                        res2['data']['target']['tag_path']
+                        )
+                    dest = os.path.abspath(dest)
+                    if dest not in repo_paths:
+                        repo_paths.append(dest)
+                    if not os.path.exists(dest):
+                        os.makedirs(dest)
+                    
+
+        for tag_label in config['admin']['managed_tags']:
+            log.info("Pulling files for tag %s" % tag_label)
             tasks = self._get_tasks(tag_label)
             
             for task in tasks:
@@ -137,13 +203,31 @@ class AdminController(IUSToolsController):
                         f.close()
                     os.chdir(orig_dir)
 
+        repo_paths.sort()
+        
+        # sign files
+        if self.cli_opts.sign:
+            paths = '/*.rpm '.join(repo_paths)
+            cmd = "%s --resign %s/*.rpm >/dev/null" % \
+                  (config['rpm_binpath'], paths)
+            try:
+                child = pexpect.spawn(cmd)
+                child.expect('Enter pass phrase:')
+                child.send(self.cli_opts.gpg_passphrase)
+            except pexpect.EOF, e:
+                pass
+            
         # createrepos
         log.info("Generating repository metadata")
         for path in repo_paths:
-            os.system('createrepo -s md5 %s' % path)
+            _path = re.sub(dest_base, '', path)
+            log.info("  `-> %s" % _path)
+            os.system('createrepo -s md5 %s >/dev/null' % path)
 
         # create current hash
-        f = open(os.path.join(config['admin']['repo_base_path'], 'CURRENT'), 'w+')
+        current = os.path.join(dest_base, 'CURRENT')
+        log.info("Updating: %s" % current)
+        f = open(current, 'w+')
         f.write(hashlib.md5(datetime.now().__str__()).hexdigest())
         f.close()
 
