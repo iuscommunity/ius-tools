@@ -28,7 +28,16 @@ admin.config['managed_archs'] = ['i386', 'x86_64']
 admin.config['repo_base_path'] = '~/ius-repo'
 admin.config['remote_rsync_path'] = '~/ius-repo'
 admin.config['gpg_passphrase'] = ''
-
+admin.config['announce_email'] = 'announce@example.com'
+admin.config['smtp_from'] = 'noreply@example.com'
+admin.config['smtp_host'] = 'localhost'
+admin.config['smtp_port'] = 25
+admin.config['smtp_user'] = ''
+admin.config['smtp_password'] = ''
+admin.config['smtp_tls'] = False
+admin.config['smtp_keyfile'] = '/etc/pki/tls/private/localhost.key'
+admin.config['smtp_certfile'] = '/etc/pki/tls/certs/localhost.crt'
+admin.config['smtp_subject_prefix'] = '[ius] '
 
 # Add a cli option to the admin namespace.  This overrides the 
 # coresponding config option if passed
