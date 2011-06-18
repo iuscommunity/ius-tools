@@ -13,9 +13,91 @@ from cement.core.namespace import get_config
 
 from iustools.core.controller import IUSToolsController, expose
 from iustools.helpers.misc import exec_command, get_input
+from iustools.helpers.smtp import send_mail
 from iustools.core import exc
 
 log = get_logger(__name__)
+
+FOOTER = """
+
+Please note that downstream mirrors take anywhere from 1-24 hours to sync.
+
+
+======================================================================
+Installing From IUS Repositories
+----------------------------------------------------------------------
+
+First read the Getting Started guide here:
+
+	http://iuscommunity.org/Docs/GettingStarted/
+
+
+Then either install:
+
+    root@linuxbox ~]# yum install <package1> <package2>
+
+
+OR upgrade if you already have IUS Packages installed:
+
+    root@linuxbox ~]# yum upgrade
+
+
+Additionally, if you'd like to install or upgrade a package from 'testing' 
+simply do the following:
+
+    root@linuxbox ~]# root install <package1> --enablerepo=ius-testing
+    
+    root@linuxbox ~]# root upgrade <package1> --enablerepo=ius-testing
+
+
+
+======================================================================
+Reporting Bugs
+----------------------------------------------------------------------
+
+Any and all feedback is greatly appreciated.  Please report all bugs to:
+
+	http://bugs.launchpad.net/ius
+
+
+Thanks!
+
+
+---
+You received this message because you are subscribed to the 'ius-community' 
+team list at http://launchpad.net/~ius-community
+
+SITE: http://iuscommunity.org
+BUGS: http://launchpad.net/ius
+REPO: http://dl.iuscommunity.org
+IRC: #iuscommunity
+
+"""
+
+TAG_MSG = """
+
+The following builds have been tagged as '%s':
+
+    - %s
+
+%s
+
+"""
+
+TAG_AND_UNTAG_MSG = """
+
+The following builds have been tagged as '%s':
+
+    - %s
+
+
+Additionally, the following older builds were moved to tag 'archive':
+
+    - %s
+
+%s
+
+"""
 
 class AdminController(IUSToolsController):
     def _get_tasks(self, tag_label, dest_path):
@@ -63,7 +145,7 @@ class AdminController(IUSToolsController):
         orig_dir = os.curdir
         orig_dir = os.curdir
 
-        log.info('Destination: %s' % dest_base)
+        log.info('Local repo is %s' % dest_base)
         
         if self.cli_opts.clean:
             if os.path.exists(dest_base):
@@ -234,10 +316,11 @@ class AdminController(IUSToolsController):
         self.create_repo_metadata(repo_paths)
 
         # create current hash
+        _hash = hashlib.md5(datetime.now().__str__()).hexdigest()
         current = os.path.join(tmp_base, 'CURRENT')
-        log.info("Updating: %s" % current)
+        log.info("Updating CURRENT file with hash: %s" % _hash)
         f = open(current, 'w+')
-        f.write(hashlib.md5(datetime.now().__str__()).hexdigest())
+        f.write(_hash)
         f.close()
 
         if os.path.exists(dest_base):
@@ -247,7 +330,78 @@ class AdminController(IUSToolsController):
         
         return dict()
 
+    def process_tag(self, tag_label):
+        config = get_config()
+        log.info("Processing tag %s" % tag_label)
+        res = self._wrap(self.mf.tag.get_one, 
+                         "%s-candidate" % tag_label, 
+                         'ius')
+        from_tag = res['data']['tag']
+        
+        res = self._wrap(self.mf.tag.get_one, tag_label, 'ius')
+        to_tag = res['data']['tag']
+        
+        old_tag = None
+        if tag_label == 'stable':
+            res = self._wrap(self.mf.tag.get_one, 'archive', 'ius')
+            old_tag = res['data']['tag']
+        
+        res = self._wrap(self.mf.tag.move_builds, 
+                         from_tag['label'], 
+                         'ius', 
+                         to_tag['label']) 
+        untagged_builds = res['data']['untagged_builds']
+        moved_builds = res['data']['moved_builds']
+        
+        if not len(moved_builds) > 0:
+            return 
+           
+        # if tagging to stable, remove all other tags
+        if to_tag['label'] == 'stable':
+            res = self._wrap(self.mf.tag.get_all, dict(project_label='ius'))
+            all_tags = res['data']['tags']
+            for build in moved_builds:
+                for _tag in all_tags:
+                    if _tag['label'] == 'stable':
+                        continue
+                    res = self._wrap(self.mf.build.untag, 
+                                     build, 
+                                     'ius',
+                                     _tag['label'])
 
+        # if there were older untagged_builds move them to old_tag
+        if old_tag and len(untagged_builds) > 0:
+            msg = TAG_AND_UNTAG_MSG % (
+                    to_tag['label'], 
+                    "\n\r    - ".join(moved_builds),
+                    "\n\r    - ".join(untagged_builds),
+                    FOOTER
+                    )
+            for old_label in untagged_builds:
+                res = self._wrap(self.mf.build.tag,
+                                 old_label,
+                                 'ius',
+                                 old_tag['label'])
+        else:
+            msg = TAG_MSG % (
+                    to_tag['label'], 
+                    "\n\r   - ".join(moved_builds),
+                    FOOTER
+                    )
+        
+        for build in moved_builds:
+            log.info("  `-> %s" % build)
+            
+        send_mail(config['admin']['announce_email'],
+                  "new builds moved to tag '%s'" % to_tag['label'],
+                  msg)
+            
+    @expose(namespace='admin')
+    def process_tags(self):
+        config = get_config()
+        for tag_label in config['admin']['managed_tags']:
+            self.process_tag(tag_label)
+            
     def create_repo_metadata(self, path_list=[]):
         """
         Generate Yum metadata in each director of path_list.
@@ -306,6 +460,11 @@ class AdminController(IUSToolsController):
 
     @expose(namespace='admin')
     def sync(self):
+        # prompt now so it doesn't later
+        if self.cli_opts.sign and not self.cli_opts.gpg_passphrase:
+            self.cli_opts.gpg_passphrase = get_input("GPG Key Passphrase: ",
+                                                     suppress=True)
+        self.process_tags()
         self.gen_repo()
-        self.push_to_public()
+        #self.push_to_public()
 
