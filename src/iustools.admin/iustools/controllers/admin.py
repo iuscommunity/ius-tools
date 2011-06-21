@@ -466,5 +466,5 @@ class AdminController(IUSToolsController):
                                                      suppress=True)
         self.process_tags()
         self.gen_repo()
-        #self.push_to_public()
+        self.push_to_public()
 
