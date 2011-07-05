@@ -79,6 +79,7 @@ class IUSRepo(object):
                     if dest not in repo_paths:
                         repo_paths.append(dest)
 
+        repo_paths.sort()
         return repo_paths
         
     def _wrap(self, func, *args, **kw):
@@ -241,18 +242,19 @@ class IUSRepo(object):
             if not files:
                 log.debug("Nothing to sign in %s" % path)
                 continue
-                
-            cmd = "%s --resign %s/*.rpm" % \
-                  (self.config['rpm_binpath'], path)
-            try:
-                log.debug("Executing: %s" % cmd)
-                child = pexpect.spawn(cmd)
-                child.expect('Enter pass phrase: ')
-                child.sendline(passphrase)
-                child.close()
-                if child.exitstatus != 0:
-                    log.fatal("Failed signing %s" % path)
-            except pexpect.EOF, e:
-                log.warn('Caught pexpect.EOF???')
-            except pexpect.TIMEOUT, e:
-                log.warn('Caught pexpect.TIMEOUT???')
+            
+            for _file in files:    
+                cmd = "%s --resign %s" % \
+                      (self.config['rpm_binpath'], _file)
+                try:
+                    log.debug("Executing: %s" % cmd)
+                    child = pexpect.spawn(cmd)
+                    child.expect('Enter pass phrase: ')
+                    child.sendline(passphrase)
+                    child.close()
+                    if child.exitstatus != 0:
+                        log.fatal("Failed signing %s" % _file)
+                except pexpect.EOF, e:
+                    log.warn('Caught pexpect.EOF???')
+                except pexpect.TIMEOUT, e:
+                    log.warn('Caught pexpect.TIMEOUT???')
