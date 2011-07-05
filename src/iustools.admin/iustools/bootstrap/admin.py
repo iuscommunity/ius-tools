@@ -29,6 +29,7 @@ admin.config['repo_base_path'] = '~/ius-repo'
 admin.config['remote_rsync_path'] = '~/ius-repo'
 admin.config['rpm_binpath'] = '/bin/rpm'
 admin.config['rsync_binpath'] = '/usr/bin/rsync'
+admin.config['createrepo_binpath'] = '/usr/bin/createrepo'
 admin.config['gpg_passphrase'] = ''
 admin.config['announce_email'] = 'announce@example.com'
 admin.config['smtp_from'] = 'noreply@example.com'
@@ -51,7 +52,7 @@ admin.options.add_option('--clean', action='store_true', dest='clean',
     help='clean destination repo before creation (used with gen-repo)')
 admin.options.add_option('--delete', action='store_true', dest='delete',
     help='delete old files from remote destination')
-admin.options.add_option('--passphrase', action='store_true', 
+admin.options.add_option('--passphrase', action='store', 
     dest='gpg_passphrase', help='gpg key passphrase')
     
 # Officialize and register the namespace
