@@ -111,14 +111,15 @@ class AdminController(IUSToolsController):
             if not passphrase:
                 passphrase = get_input("GPG Key Passphrase: ", suppress=True)
                 
-        repo = IUSRepo(config, self.mf)
+            repo = IUSRepo(config, self.mf, sign=True, 
+                           gpg_passphrase=passphrase)
+        else:
+            repo = IUSRepo(config, self.mf)
+            
         if self.cli_opts.clean:
             repo.clean()
+            
         repo.get_files()
-        
-        if self.cli_opts.sign:
-            repo.sign_packages(passphrase)
-        
         repo.build_metadata()
 
     @expose(namespace='admin')

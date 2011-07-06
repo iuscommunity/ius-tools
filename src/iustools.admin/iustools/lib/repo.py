@@ -18,9 +18,11 @@ from iustools.core import exc
 log = get_logger(__name__)
 
 class IUSRepo(object):
-    def __init__(self, config, mf_hub):
+    def __init__(self, config, mf_hub, sign=False, gpg_passphrase=None):
         self.config = config
         self.mf = mf_hub
+        self.sign_packages = sign
+        self.gpg_passphrase = gpg_passphrase
         self.local_path = os.path.join(self.config['admin']['repo_base_path'], 'ius')
         self.tmp_path = "%s.tmp" % self.local_path
         
@@ -146,6 +148,9 @@ class IUSRepo(object):
         f = open(dest_path, 'w+')
         f.write(f_contents)
         f.close()
+        
+        if self.sign_packages:
+            self.sign_package(dest_path)
                         
     def get_files(self):
         repo_paths = self.get_repo_paths(self.tmp_path)
@@ -224,37 +229,24 @@ class IUSRepo(object):
             os.system('%s -s md5 %s >/dev/null' % \
                 (self.config['admin']['createrepo_binpath'], path))
             
-    def sign_packages(self, passphrase):
-        """
-        Sign all files matching *.rpm in path_list.
-        
-        Required Arguments:
-        
-            passphrase
-                The GPG key passphrase.
-
-        """
-        log.info("Signing packages with GPG key")
-        path_list = self.get_repo_paths(self.local_path)
-        
-        for path in path_list:
-            files = glob('%s/*.rpm' % path)
-            if not files:
-                log.debug("Nothing to sign in %s" % path)
-                continue
+    def sign_package(self, path):
+        if not os.path.exists(path):
+            log.warn("Path does not exist: %s" % path)
+            return
             
-            for _file in files:    
-                cmd = "%s --resign %s" % \
-                      (self.config['rpm_binpath'], _file)
-                try:
-                    log.debug("Executing: %s" % cmd)
-                    child = pexpect.spawn(cmd)
-                    child.expect('Enter pass phrase: ')
-                    child.sendline(passphrase)
-                    child.close()
-                    if child.exitstatus != 0:
-                        log.fatal("Failed signing %s" % _file)
-                except pexpect.EOF, e:
-                    log.warn('Caught pexpect.EOF???')
-                except pexpect.TIMEOUT, e:
-                    log.warn('Caught pexpect.TIMEOUT???')
+        log.debug("Signing %s" % path)        
+        cmd = "%s --resign %s" % \
+              (self.config['rpm_binpath'], path)
+        try:
+            log.debug("Executing: %s" % cmd)
+            child = pexpect.spawn(cmd)
+            child.expect('Enter pass phrase: ')
+            child.sendline(self.gpg_passphrase)
+            child.wait()
+            if child.exitstatus != 0:
+                log.fatal("Failed signing %s" % path)
+        except pexpect.EOF, e:
+            log.warn('Caught pexpect.EOF???')
+        except pexpect.TIMEOUT, e:
+            log.warn('Caught pexpect.TIMEOUT???')
+                    
