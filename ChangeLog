@@ -1,4 +1,25 @@
 
+
+0.1.7 - not released (will be released as 0.1.8)
+------------------------------------------------------------------------------
+
+Bug Fixes
+
+ - Issue #18 - --passphrase on admin plugin broken
+
+0.1.6 - Jun 20, 2011 
+------------------------------------------------------------------------------
+
+Bug Fixes
+
+ - Issue #12 - ircbot responds to msg's starting with '..'
+
+
+Feature Enhancements
+
+ + Issue #15 - Admin plugin for syncing repos from MF
+
+
 0.1.4 - Jun 10, 2011 
 ------------------------------------------------------------------------------
 

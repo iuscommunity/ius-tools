@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='iustools.core',
-    version='0.1.5',
+    version='0.1.6',
     description='Scripts and Utilities for The IUS Community Project',
     classifiers=[], 
     keywords='',

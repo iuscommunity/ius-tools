@@ -4,7 +4,7 @@ import sys, os
 
 # You probably want to change the name, this is a healthy default for paster
 setup(name='iustools.example',
-    version='0.1.5',
+    version='0.1.6',
     description='Example plugin for IUS Community Project Tools',
     classifiers=[], 
     keywords='',
@@ -18,7 +18,7 @@ setup(name='iustools.example',
     install_requires=[
         "genshi",
         "cement >=0.8.16, <0.9",
-        "iustools.core==0.1.5",
+        "iustools.core==0.1.6",
         ],
     setup_requires=[
         ],
