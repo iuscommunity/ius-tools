@@ -45,9 +45,9 @@ OR upgrade if you already have IUS Packages installed:
 Additionally, if you'd like to install or upgrade a package from 'testing' 
 simply do the following:
 
-    root@linuxbox ~]# root install <package1> --enablerepo=ius-testing
+    root@linuxbox ~]# yum install <package1> --enablerepo=ius-testing
     
-    root@linuxbox ~]# root upgrade <package1> --enablerepo=ius-testing
+    root@linuxbox ~]# yum upgrade <package1> --enablerepo=ius-testing
 
 
 
@@ -77,8 +77,8 @@ IRC: #iuscommunity
 TAG_MSG = """
 
 The following builds have been tagged as '%s':
-
-    - %s
+    
+   - %s
 
 %s
 
@@ -88,12 +88,12 @@ TAG_AND_UNTAG_MSG = """
 
 The following builds have been tagged as '%s':
 
-    - %s
+   - %s
 
 
 Additionally, the following older builds were moved to tag 'archive':
 
-    - %s
+   - %s
 
 %s
 
