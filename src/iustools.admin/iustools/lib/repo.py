@@ -25,6 +25,8 @@ class IUSRepo(object):
         self.gpg_passphrase = gpg_passphrase
         self.local_path = os.path.join(self.config['admin']['repo_base_path'], 'ius')
         self.tmp_path = "%s.tmp" % self.local_path
+        self.gpg_key_path = self.config['admin']['gpg_key_file_path']
+        self.eua_path = self.config['admin']['eua_file_path']
         
         if os.path.exists(self.tmp_path):
             shutil.rmtree(self.tmp_path)
@@ -196,8 +198,22 @@ class IUSRepo(object):
                         continue
                     else:
                         self.get_file(file_path, tmp_path)
-         
-         # create current hash
+        
+        # GPG and EUA
+        if os.path.exists(self.gpg_key_path):
+            dest = os.path.join(self.tmp_path, 'IUS-COMMUNITY-GPG-KEY')
+            log.info("Updating IUS-COMMUNITY-GPG-KEY") 
+            if os.path.exists(dest):
+                os.remove(dest)
+            shutil.copy(self.gpg_key_path, dest)
+        if os.path.exists(self.eua_path):
+            dest = os.path.join(self.tmp_path, 'IUS-COMMUNITY-EUA')
+            log.info("Updating IUS-COMMUNITY-EUA") 
+            if os.path.exists(dest):
+                os.remove(dest)
+            shutil.copy(self.eua_path, dest)
+                
+        # create current hash
         _hash = hashlib.md5(datetime.now().__str__()).hexdigest()
         current = os.path.join(self.tmp_path, 'CURRENT')
         log.info("Updating CURRENT file with hash: %s" % _hash)

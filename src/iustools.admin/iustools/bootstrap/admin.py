@@ -41,6 +41,8 @@ admin.config['smtp_tls'] = False
 admin.config['smtp_keyfile'] = '/etc/pki/tls/private/localhost.key'
 admin.config['smtp_certfile'] = '/etc/pki/tls/certs/localhost.crt'
 admin.config['smtp_subject_prefix'] = '[ius] '
+admin.config['gpg_key_file_path'] = '/usr/share/ius-tools/IUS-COMMUNITY-GPG-KEY'
+admin.config['eua_file_path'] = '/usr/share/ius-tools/IUS-COMMUNITY-EUA'
 
 # Add a cli option to the admin namespace.  This overrides the 
 # coresponding config option if passed
