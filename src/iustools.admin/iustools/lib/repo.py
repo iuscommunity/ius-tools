@@ -255,8 +255,12 @@ class IUSRepo(object):
                     (self.config['admin']['yumarch_binpath'], path))
                     
             # add repoview
-            os.system('%s %s >/dev/null 2>&1' % \
-                    (self.config['admin']['repoview_binpath'], path))
+            if 'debuginfo' in path.split('/'):
+                os.system('%s %s >/dev/null 2>&1' % \
+                         (self.config['admin']['repoview_binpath'], path))
+            else:
+                os.system('%s -i *debuginfo* %s >/dev/null 2>&1' % \
+                         (self.config['admin']['repoview_binpath'], path))
                     
     def sign_package(self, path):
         if not os.path.exists(path):
