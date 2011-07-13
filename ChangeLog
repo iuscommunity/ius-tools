@@ -6,6 +6,8 @@ Bug Fixes
 
  - Issue #18 - Option --passphrase on admin plugin broken
  - Issue #19 - Include IUS End User Agreement and GPG Key in repo
+ - Issue #20 - Add 'repoview' data to ius admin sync process
+ - Issue #22 - ius admin sync needs to run 'yum-arch' on el4 repos
  
 
 0.1.6 - Jun 20, 2011 

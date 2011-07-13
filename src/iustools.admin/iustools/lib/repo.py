@@ -242,9 +242,22 @@ class IUSRepo(object):
         start = len(config['admin']['repo_base_path'].split('/'))
         for path in path_list:
             log.info("  `-> %s" % '/'.join(path.split('/')[start:]))
-            os.system('%s -s md5 %s >/dev/null' % \
-                (self.config['admin']['createrepo_binpath'], path))
+            if 'debuginfo' in path.split('/'):
+                os.system('%s -d -s md5 %s >/dev/null' % \
+                    (self.config['admin']['createrepo_binpath'], path))
+            else:
+                os.system('%s -x debuginfo -d -s md5 %s >/dev/null' % \
+                    (self.config['admin']['createrepo_binpath'], path))
             
+            # run yum-arch for el4 repos
+            if path.find('Redhat/4/') > 0:
+                os.system('%s %s >/dev/null 2>&1' % \
+                    (self.config['admin']['yumarch_binpath'], path))
+                    
+            # add repoview
+            os.system('%s %s >/dev/null 2>&1' % \
+                    (self.config['admin']['repoview_binpath'], path))
+                    
     def sign_package(self, path):
         if not os.path.exists(path):
             log.warn("Path does not exist: %s" % path)
