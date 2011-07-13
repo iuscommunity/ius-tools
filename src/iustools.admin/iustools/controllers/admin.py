@@ -127,12 +127,12 @@ class AdminController(IUSToolsController):
         config = get_config()
         log.info("pushing changes to %s" % config['admin']['remote_rsync_path'])
         if self.cli_opts.delete:
-            os.system('%s -az --delete %s/ %s/ >/dev/null' % \
+            os.system('%s -az --delete %s/ius/ %s/ius/ >/dev/null' % \
                      (config['admin']['rsync_binpath'],
                       config['admin']['repo_base_path'],
                       config['admin']['remote_rsync_path']))
         else:
-            os.system('%s -az %s/ %s/ >/dev/null' % \
+            os.system('%s -az %s/ius/ %s/ius/ >/dev/null' % \
                      (config['admin']['rsync_binpath'],
                       config['admin']['repo_base_path'],
                       config['admin']['remote_rsync_path']))
