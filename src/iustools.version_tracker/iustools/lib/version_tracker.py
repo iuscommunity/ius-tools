@@ -118,7 +118,7 @@ def bug_titles():
     '''Get titles for all bugs in the IUS Projects Launchpad'''
     titles = []
     launchpad = Launchpad.login_anonymously(os.path.basename(sys.argv[0]), 'production')
-    ius = launchpad.projects.search(text='ius')[0]
+    ius = launchpad.projects('ius')
     tasks = ius.searchTasks()
     for task in tasks:
         titles.append(task.bug.title)
@@ -136,7 +136,7 @@ def create_bug(name, version, url):
     '''Taking advantage of launchpadlib we can create a Launchpad Bug, 
 it is assumed you first used compare_titles() to verify a bug does not already exits'''
     launchpad = Launchpad.login_with(os.path.basename(sys.argv[0]), 'production')
-    ius = launchpad.projects.search(text='ius')[0]
+    ius = launchpad.projects('ius')
     mytitle = 'UPDATE REQUEST: ' +  name + ' ' +  str(version) + ' is available upstream'
     launchpad.bugs.createBug(description='New Source from Upstream: ' + url, title=mytitle, target=ius)
 
