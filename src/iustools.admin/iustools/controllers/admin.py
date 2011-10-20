@@ -127,15 +127,31 @@ class AdminController(IUSToolsController):
         config = get_config()
         log.info("pushing changes to %s" % config['admin']['remote_rsync_path'])
         if self.cli_opts.delete:
-            os.system('%s -az --delete %s/ius/ %s/ius/ >/dev/null' % \
+            os.system('%s -az --delete %s/ius/ %s/ius/ --exclude %s >/dev/null' % \
                      (config['admin']['rsync_binpath'],
                       config['admin']['repo_base_path'],
-                      config['admin']['remote_rsync_path']))
+                      config['admin']['remote_rsync_path'],
+                      config['admin']['remote_exclude']))
         else:
-            os.system('%s -az %s/ius/ %s/ius/ >/dev/null' % \
+            os.system('%s -az %s/ius/ %s/ius/ --exclude %s >/dev/null' % \
                      (config['admin']['rsync_binpath'],
                       config['admin']['repo_base_path'],
-                      config['admin']['remote_rsync_path']))
+                      config['admin']['remote_rsync_path'],
+                      config['admin']['remote_exclude']))
+
+        # Internal IUS Push
+        log.info("pushing changes to %s" % config['admin']['internal_remote_rsync_path'])
+        if self.cli_opts.delete:
+            os.system('%s -az --delete %s/ius/ %s/ >/dev/null' % \
+                     (config['admin']['rsync_binpath'],
+                      config['admin']['repo_base_path'],
+                      config['admin']['internal_remote_rsync_path']))
+        else:
+            os.system('%s -az %s/ius/ %s/ >/dev/null' % \
+                     (config['admin']['rsync_binpath'],
+                      config['admin']['repo_base_path'],
+                      config['admin']['internal_remote_rsync_path']))
+
 
     @expose(namespace='admin')
     def sync(self):
@@ -208,7 +224,7 @@ class AdminController(IUSToolsController):
         
         for build in moved_builds:
             log.info("  `-> %s" % build)
-            
+           
         send_mail(config['admin']['announce_email'],
                   "new builds moved to tag '%s'" % to_tag['label'],
                   msg)

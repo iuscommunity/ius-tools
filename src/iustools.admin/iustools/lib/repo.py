@@ -126,13 +126,27 @@ class IUSRepo(object):
                 path = os.path.join(tag_label, task['target']['tag_path'])
                 dest_path = self.fix_path(os.path.join(self.local_path, path))
                 tmp_path = self.fix_path(os.path.join(self.tmp_path, path))
-                
+                debuginfo_path = os.path.join(dest_path, 'debuginfo')
+                tmp_debuginfo_path = os.path.join(tmp_path, 'debuginfo')
+                srpm_path = os.path.join(os.path.dirname(dest_path), 'SRPMS')
+                tmp_srpm_path = os.path.join(os.path.dirname(tmp_path), 'SRPMS')
+
+                # create directories if they do not already exists
+                # due to the IOError: [Errno 2] No such file or directory
+                # error that was occuring
+                fix_paths = [dest_path, tmp_path, debuginfo_path,
+                             tmp_debuginfo_path, srpm_path, tmp_srpm_path]
+
+                for p in fix_paths:
+                    if not os.path.exists(p):
+                        os.makedirs(p)
+
                 task['dest_path'] = dest_path
                 task['tmp_path'] = tmp_path
-                task['debuginfo_path'] = os.path.join(dest_path, 'debuginfo')
-                task['tmp_debuginfo_path'] = os.path.join(tmp_path, 'debuginfo')
-                task['srpm_path'] = os.path.join(os.path.dirname(dest_path), 'SRPMS')
-                task['tmp_srpm_path'] = os.path.join(os.path.dirname(tmp_path), 'SRPMS')
+                task['debuginfo_path'] = debuginfo_path
+                task['tmp_debuginfo_path'] = tmp_debuginfo_path
+                task['srpm_path'] = srpm_path
+                task['tmp_srpm_path'] = tmp_srpm_path
                 tasks.append(task)
         return tasks
             
