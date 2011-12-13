@@ -141,19 +141,34 @@ class AdminController(IUSToolsController):
 
         # Internal IUS Push
         if config['admin']['internal_remote_rsync_path']:
+
+            # remove any excludes if configured
+            if config['admin']['internal_remote_exclude']:
+                internal_remote_exclude = config['admin']['internal_remote_exclude']
+                for exclude in internal_remote_exclude:
+                    log.info("removing %s from %s" % (exclude, config['admin']['repo_base_path']))
+                    for dirs in os.walk('%s/ius/' % config['admin']['repo_base_path']):
+                        if exclude in ', '.join(dirs[2]):
+                        path = dirs[0]
+                        for f in dirs[2]:
+                            if exclude in f:
+                                os.remove('%s/%s' % (path, f))
+
+                # rebuild our meta data now that
+                # files have been removed
+                repo.build_metadata()
+
             log.info("pushing changes to %s" % config['admin']['internal_remote_rsync_path'])
             if self.cli_opts.delete:
-                os.system('%s -az --delete %s/ius/ %s/ --exclude %s >/dev/null' % \
+                os.system('%s -az --delete %s/ius/ %s/ >/dev/null' % \
                          (config['admin']['rsync_binpath'],
                           config['admin']['repo_base_path'],
-                          config['admin']['internal_remote_rsync_path'],
-                          config['admin']['internal_remote_exclude']))
+                          config['admin']['internal_remote_rsync_path']))
             else:
-                os.system('%s -az %s/ius/ %s/ --exclude %s >/dev/null' % \
+                os.system('%s -az %s/ius/ %s/ >/dev/null' % \
                          (config['admin']['rsync_binpath'],
                           config['admin']['repo_base_path'],
-                          config['admin']['internal_remote_rsync_path'],
-                          config['admin']['internal_remote_exclude']))
+                          config['admin']['internal_remote_rsync_path']))
 
 
     @expose(namespace='admin')
