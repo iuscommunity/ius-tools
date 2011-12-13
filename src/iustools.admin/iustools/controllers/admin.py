@@ -144,15 +144,13 @@ class AdminController(IUSToolsController):
 
             # remove any excludes if configured
             if config['admin']['internal_remote_exclude']:
-                internal_remote_exclude = config['admin']['internal_remote_exclude']
-                for exclude in internal_remote_exclude:
+                for exclude in config['admin']['internal_remote_exclude']:
                     log.info("removing %s from %s" % (exclude, config['admin']['repo_base_path']))
                     for dirs in os.walk('%s/ius/' % config['admin']['repo_base_path']):
                         if exclude in dirs[2]:
-                            path = dirs[0]
                             for f in dirs[2]:
                                 if exclude in f:
-                                    os.remove('%s/%s' % (path, f))
+                                    os.remove('%s/%s' % (dirs[0], f))
 
                 # rebuild our meta data now that
                 # files have been removed
