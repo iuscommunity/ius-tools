@@ -146,14 +146,15 @@ class AdminController(IUSToolsController):
             if config['admin']['internal_remote_exclude']:
                 for exclude in config['admin']['internal_remote_exclude']:
                     log.info("removing %s from %s" % (exclude, config['admin']['repo_base_path']))
-                    for dirs in os.walk('%s/ius/' % config['admin']['repo_base_path']):
-                        if exclude in dirs[2]:
+                    for dirs in os.walk('%s/ius/' % os.path.expanduser(config['admin']['repo_base_path'])):
+                        if exclude in ', '.join(dirs[2]):
                             for f in dirs[2]:
                                 if exclude in f:
                                     os.remove('%s/%s' % (dirs[0], f))
 
                 # rebuild our meta data now that
                 # files have been removed
+                repo = IUSRepo(config, self.mf)
                 repo.build_metadata()
 
             log.info("pushing changes to %s" % config['admin']['internal_remote_rsync_path'])
