@@ -140,17 +140,20 @@ class AdminController(IUSToolsController):
                       config['admin']['remote_exclude']))
 
         # Internal IUS Push
-        log.info("pushing changes to %s" % config['admin']['internal_remote_rsync_path'])
-        if self.cli_opts.delete:
-            os.system('%s -az --delete %s/ius/ %s/ >/dev/null' % \
-                     (config['admin']['rsync_binpath'],
-                      config['admin']['repo_base_path'],
-                      config['admin']['internal_remote_rsync_path']))
-        else:
-            os.system('%s -az %s/ius/ %s/ >/dev/null' % \
-                     (config['admin']['rsync_binpath'],
-                      config['admin']['repo_base_path'],
-                      config['admin']['internal_remote_rsync_path']))
+        if config['admin']['internal_remote_rsync_path']:
+            log.info("pushing changes to %s" % config['admin']['internal_remote_rsync_path'])
+            if self.cli_opts.delete:
+                os.system('%s -az --delete %s/ius/ %s/ --exclude %s >/dev/null' % \
+                         (config['admin']['rsync_binpath'],
+                          config['admin']['repo_base_path'],
+                          config['admin']['internal_remote_rsync_path'],
+                          config['admin']['internal_remote_exclude']))
+            else:
+                os.system('%s -az %s/ius/ %s/ --exclude %s >/dev/null' % \
+                         (config['admin']['rsync_binpath'],
+                          config['admin']['repo_base_path'],
+                          config['admin']['internal_remote_rsync_path'],
+                          config['admin']['internal_remote_exclude']))
 
 
     @expose(namespace='admin')
