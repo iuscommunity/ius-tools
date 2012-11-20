@@ -14,6 +14,7 @@ from iustools.core.controller import IUSToolsController, expose
 from iustools.helpers.misc import exec_command, get_input
 from iustools.helpers.smtp import send_mail
 from iustools.core import exc
+from urllib2 import HTTPError
 
 log = get_logger(__name__)
 
@@ -113,6 +114,11 @@ class IUSRepo(object):
             log.debug("-> processing build %s" % build_label)
             res = self._wrap(self.mf.build.get_one, build_label, 'ius')
             for task_label in res['data']['build']['tasks']:
+
+                # ignore point release tasks
+                #if re.search('[0-9]\.z\.', task_label):
+                #    continue
+
                 log.debug("   -> processing task %s" % task_label)
                 params = "task_label=%s&project_label=%s" % \
                          (task_label, 'ius')
@@ -189,12 +195,17 @@ class IUSRepo(object):
                     file_path = '%s/files/%s' % (task['fs_path'], _file)
                                         
                     # Create a hardlink if it existes prevously
-                    if os.path.exists(dest_path):
+                    if os.path.exists(dest_path) and not os.path.exists(tmp_path):
                         log.debug("Hard linking from: %s" % dest_path)
-                        os.link(dest_path, tmp_path)
-                    else:
+                        # some bug is causing multiple hard link attempts
+                        try:
+                            os.link(dest_path, tmp_path)
+                        except OSError as e:
+                            log.error(e.args[0])
+                    elif not os.path.exists(tmp_path):
                         self.get_file(file_path, tmp_path)
-                        
+                    else:
+                        pass # ?
         
                 # Get SRPMS for i386 tasks only
                 if not task['target']['arch_label'] == 'i386':
@@ -208,7 +219,11 @@ class IUSRepo(object):
                     # Create a hardlink if it existes prevously
                     if os.path.exists(dest_path):
                         log.debug("Hard linking from: %s" % dest_path)
-                        os.link(dest_path, tmp_path)
+                        # some bug is causing multiple hard link attempts
+                        try:
+                            os.link(dest_path, tmp_path)
+                        except OSError:
+                            pass
                         continue
                     else:
                         self.get_file(file_path, tmp_path)

@@ -127,20 +127,47 @@ class AdminController(IUSToolsController):
         config = get_config()
         log.info("pushing changes to %s" % config['admin']['remote_rsync_path'])
         if self.cli_opts.delete:
-            os.system('%s -az --delete %s/ius/ %s/ius/ --exclude %s >/dev/null' % \
+            status = os.system('%s -az --delete %s/ius/ %s/ius/ --exclude %s >/dev/null' % \
                      (config['admin']['rsync_binpath'],
                       config['admin']['repo_base_path'],
                       config['admin']['remote_rsync_path'],
                       config['admin']['remote_exclude']))
         else:
-            os.system('%s -az %s/ius/ %s/ius/ --exclude %s >/dev/null' % \
+            status = os.system('%s -az %s/ius/ %s/ius/ --exclude %s >/dev/null' % \
                      (config['admin']['rsync_binpath'],
                       config['admin']['repo_base_path'],
                       config['admin']['remote_rsync_path'],
                       config['admin']['remote_exclude']))
 
+        # handle errors on our rsync command
+        if status != 0:
+            log.error("rsync failed and returned status %s" % status)
+            raise Exception("fatal error")
+
         # Internal IUS Push
         if config['admin']['internal_remote_rsync_path']:
+
+
+            # Removing an entire tag will cause it to be re-downloaded each time,
+            # this will cause the script to take hours....
+            # exclude unsynced tags
+            #if config['admin']['internal_tag_exclude']:
+            #    for tag_exclude in config['admin']['internal_tag_exclude']:
+            #        if os.path.exists("%s/ius/%s" % (config['admin']['repo_base_path'], tag_exclude)):
+            #            log.info("removing %s from %s/ius/" % (tag_exclude, config['admin']['repo_base_path']))
+            #            shutil.rmtree("%s/ius/%s" % (config['admin']['repo_base_path'], tag_exclude))
+
+            # create a rsync friendly exclude command
+            if config['admin']['internal_tag_exclude']:
+                tag_exclude_list = []
+                for tag_exclude in config['admin']['internal_tag_exclude']:
+                    if os.path.exists("%s/ius/%s" % (config['admin']['repo_base_path'], tag_exclude)):
+                        log.info("appending %s to exclude list" % tag_exclude)
+                        tag_exclude_list.append("--exclude '%s'" % tag_exclude)
+            if tag_exclude_list:
+                exclude_command = ' '.join([ i for i in tag_exclude_list])
+            else:
+                exclude_command = ''
 
             # remove any excludes if configured
             if config['admin']['internal_remote_exclude']:
@@ -159,15 +186,22 @@ class AdminController(IUSToolsController):
 
             log.info("pushing changes to %s" % config['admin']['internal_remote_rsync_path'])
             if self.cli_opts.delete:
-                os.system('%s -az --delete %s/ius/ %s/ >/dev/null' % \
+                status = os.system('%s -az %s --delete %s/ius/ %s/ >/dev/null' % \
                          (config['admin']['rsync_binpath'],
+                          exclude_command,
                           config['admin']['repo_base_path'],
                           config['admin']['internal_remote_rsync_path']))
             else:
-                os.system('%s -az %s/ius/ %s/ >/dev/null' % \
+                status = os.system('%s -az %s %s/ius/ %s/ >/dev/null' % \
                          (config['admin']['rsync_binpath'],
+                          exclude_command,
                           config['admin']['repo_base_path'],
                           config['admin']['internal_remote_rsync_path']))
+
+            # handle errors on our rsync command
+            if status != 0:
+                log.error("rsync failed and returned status %s" % status)
+                raise Exception("fatal error")
 
 
     @expose(namespace='admin')
