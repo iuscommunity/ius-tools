@@ -208,8 +208,8 @@ class IUSRepo(object):
                     else:
                         pass # ?
         
-                # Get SRPMS for i386 tasks only
-                if not task['target']['arch_label'] == 'i386':
+                # Get SRPMS for x86_64 tasks only
+                if not task['target']['arch_label'] == 'x86_64':
                     continue
                     
                 for _file in task['sources']:
