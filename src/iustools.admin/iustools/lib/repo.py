@@ -36,6 +36,7 @@ class IUSRepo(object):
     def fix_path(self, path):
         path = os.path.abspath(path)
         path = re.sub('redhat', 'Redhat', path)
+        path = re.sub('centos', 'CentOS', path)
         return path
         
     def get_repo_paths(self, base_path):
