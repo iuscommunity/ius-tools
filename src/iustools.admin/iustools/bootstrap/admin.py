@@ -33,6 +33,7 @@ admin.config['internal_remote_exclude'] = False
 admin.config['rpm_binpath'] = '/bin/rpm'
 admin.config['rsync_binpath'] = '/usr/bin/rsync'
 admin.config['createrepo_binpath'] = '/usr/bin/createrepo'
+admin.config['createrepo_opts'] = '--database --checksum md5 --simple-md-filenames'
 admin.config['yumarch_binpath'] = '/usr/bin/yum-arch'
 admin.config['repoview_binpath'] = '/usr/bin/repoview'
 admin.config['gpg_passphrase'] = ''
