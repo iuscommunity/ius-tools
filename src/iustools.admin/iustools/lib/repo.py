@@ -273,11 +273,15 @@ class IUSRepo(object):
         for path in path_list:
             log.info("  `-> %s" % '/'.join(path.split('/')[start:]))
             if 'debuginfo' in path.split('/'):
-                os.system('%s -d -s md5 %s >/dev/null' % \
-                    (self.config['admin']['createrepo_binpath'], path))
+                os.system('%s %s %s >/dev/null' % (
+                    self.config['admin']['createrepo_binpath'],
+                    self.config['admin']['createrepo_opts'],
+                    path))
             else:
-                os.system('%s -x debuginfo -d -s md5 %s >/dev/null' % \
-                    (self.config['admin']['createrepo_binpath'], path))
+                os.system('%s -x debuginfo %s %s >/dev/null' % (
+                    self.config['admin']['createrepo_binpath'],
+                    self.config['admin']['createrepo_opts'],
+                    path))
             
             # run yum-arch for el4 repos
             if path.find('Redhat/4/') > 0:
