@@ -1,5 +1,5 @@
 
-0.1.7 - not released (will be released as 0.1.8)
+0.1.8 - May 07, 2015
 ------------------------------------------------------------------------------
 
 Bug Fixes
@@ -8,6 +8,10 @@ Bug Fixes
  - Issue #19 - Include IUS End User Agreement and GPG Key in repo
  - Issue #20 - Add 'repoview' data to ius admin sync process
  - Issue #22 - ius admin sync needs to run 'yum-arch' on el4 repos
+
+Feature Enhancements
+
+ + Issue #30 - make the createrepo options configurable
  
 
 0.1.6 - Jun 20, 2011 

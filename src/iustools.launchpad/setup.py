@@ -4,7 +4,7 @@ import sys, os
 
 # You probably want to change the name, this is a healthy default for paster
 setup(name='iustools.launchpad',
-    version='0.1.6',
+    version='0.1.8',
     description='LaunchPad Plugin for IUS Tools',
     classifiers=[], 
     keywords='',
@@ -18,7 +18,7 @@ setup(name='iustools.launchpad',
     install_requires=[
         "genshi",
         "cement >=0.8.16, <0.9",
-        "iustools.core==0.1.6",
+        "iustools.core==0.1.8",
         "launchpadlib",
         ],
     setup_requires=[
